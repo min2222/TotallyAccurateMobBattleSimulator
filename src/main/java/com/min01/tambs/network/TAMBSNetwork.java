@@ -16,7 +16,9 @@ public class TAMBSNetwork
 	
 	public static void registerMessages()
 	{
-		//int id = 0;
+		int id = 0;
+		CHANNEL.registerMessage(id++, PlaceMobPacket.class, PlaceMobPacket::write, PlaceMobPacket::read, PlaceMobPacket::handle);
+		CHANNEL.registerMessage(id++, RemoveMobPacket.class, RemoveMobPacket::write, RemoveMobPacket::read, RemoveMobPacket::handle);
 	}
 	
     public static <MSG> void sendToServer(MSG message) 

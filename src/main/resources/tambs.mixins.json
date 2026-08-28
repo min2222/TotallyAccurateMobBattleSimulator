@@ -8,6 +8,9 @@
 		"LevelInvoker"
 	],
 	"client": [
+		"MixinKeyboardInput",
+		"MixinMouseHandler",
+		"MixinCamera"
 	],
 	"server": [
 	],

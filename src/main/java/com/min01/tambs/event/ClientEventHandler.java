@@ -1,8 +1,10 @@
 package com.min01.tambs.event;
 
 import com.min01.tambs.TAMBS;
+import com.min01.tambs.misc.TAMBSKeyMappings;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -17,5 +19,11 @@ public class ClientEventHandler
     	{
     		
     	});
+    }
+    
+    @SubscribeEvent
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event)
+    {
+    	event.register(TAMBSKeyMappings.ENTER_MOB_BATTLE_MODE);
     }
 }
