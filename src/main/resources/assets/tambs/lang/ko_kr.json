@@ -1,6 +1,9 @@
 {
 	"tambs.screen.expand": "▲ 펼치기",
 	"tambs.screen.collapse": "▼ 접기",
+	"tambs.screen.mob_select": "몹 선택",
+	"tambs.screen.team_setting": "팀 설정",
+	"tambs.screen.preset": "프리셋",
 	"key.tambs.enter_mob_battle_mode": "몹배틀 모드 진입",
 	"key.categories.tambs": "Totally Accurate Mob Battle Simulator"
 }

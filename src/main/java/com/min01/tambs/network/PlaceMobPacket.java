@@ -50,8 +50,7 @@ public class PlaceMobPacket
 			EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(message.entityName);
 			Entity entity = type.create(sender.level);
 			entity.setPos(Vec3.atBottomCenterOf(message.blockPos));
-			Vec3 pos = sender.position().subtract(entity.position());
-			Direction direction = Direction.getNearest(pos.x, pos.y, pos.z);
+			Direction direction = TAMBSUtil.getNearest(sender.position(), entity.position());
 			entity.setYRot(direction.toYRot());
 			entity.setYHeadRot(direction.toYRot());
 			entity.setYBodyRot(direction.toYRot());

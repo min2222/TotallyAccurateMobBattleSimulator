@@ -6,10 +6,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.min01.tambs.util.TAMBSClientUtil;
-import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.KeyboardInput;
 
 @Mixin(KeyboardInput.class)
@@ -20,7 +18,7 @@ public class MixinKeyboardInput
 	{
 		if(TAMBSClientUtil.isMobBattleMode())
 		{
-			return InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), instance.getKey().getValue());
+			return TAMBSClientUtil.isKeyDown(instance);
 		}
 		return original.call(instance);
 	}

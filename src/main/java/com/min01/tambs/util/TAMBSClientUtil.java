@@ -1,5 +1,9 @@
 package com.min01.tambs.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -10,15 +14,19 @@ import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.network.PlaceMobPacket;
 import com.min01.tambs.network.RemoveMobPacket;
 import com.min01.tambs.network.TAMBSNetwork;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.Camera;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -33,13 +41,20 @@ public class TAMBSClientUtil
 	public static boolean isMobBattleMode()
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		return minecraft.screen instanceof TAMBSScreen;
+		return minecraft.screen instanceof TAMBSScreen screen && screen.isCollapsed() && screen.isPauseScreen();
 	}
 	
 	public static boolean isCameraMoving()
 	{
 		Minecraft minecraft = Minecraft.getInstance();
 		return GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), minecraft.options.keyPickItem.getKey().getValue()) == GLFW.GLFW_PRESS;
+	}
+	
+	public static boolean isKeyDown(KeyMapping key)
+	{
+		Minecraft minecraft = Minecraft.getInstance();
+		Window window = minecraft.getWindow();
+		return InputConstants.isKeyDown(window.getWindow(), key.getKey().getValue());
 	}
 	
 	//copied from KeyboardInput;
@@ -77,7 +92,7 @@ public class TAMBSClientUtil
     	{
             if(hitResult instanceof EntityHitResult entityHit)
             {
-                TAMBSNetwork.sendToServer(new RemoveMobPacket(entityHit.getEntity().getUUID()));
+                TAMBSNetwork.sendToServer(new RemoveMobPacket(entityHit.getEntity().getUUID(), TAMBSClientUtil.isKeyDown(Minecraft.getInstance().options.keySprint)));
             }
     	}
 	}
@@ -149,12 +164,80 @@ public class TAMBSClientUtil
 		return raycastFromMouse(maxDistance, false);
 	}
 	
+	public static List<Entity> getEntities(double startX, double startY, double endX, double endY, double maxDistance)
+	{
+	    Minecraft minecraft = Minecraft.getInstance();
+	    if(minecraft.level == null || minecraft.player == null)
+	    {
+	    	return new ArrayList<>();
+	    }
+
+	    Camera camera = minecraft.gameRenderer.getMainCamera();
+	    Vec3 cameraPos = camera.getPosition();
+
+	    double width = minecraft.getWindow().getWidth();
+	    double height = minecraft.getWindow().getHeight();
+
+	    double minX = Math.min(startX, endX);
+	    double maxX = Math.max(startX, endX);
+	    double minY = Math.min(startY, endY);
+	    double maxY = Math.max(startY, endY);
+
+	    double ndcLeft = (2.0 * minX / width) - 1.0;
+	    double ndcRight = (2.0 * maxX / width) - 1.0;
+	    double ndcTop = 1.0 - (2.0 * minY / height);
+	    double ndcBottom = 1.0 - (2.0 * maxY / height);
+
+	    float partialTick = minecraft.getFrameTime();
+	    double fovY = Math.toRadians(minecraft.gameRenderer.getFov(camera, partialTick, true));
+	    double aspectRatio = width / height;
+
+	    double halfHeight = Math.tan(fovY / 2.0);
+	    double halfWidth = halfHeight * aspectRatio;
+
+	    Vector3f look = camera.getLookVector();
+	    Vector3f up = camera.getUpVector();
+	    Vector3f left = camera.getLeftVector();
+
+	    Vec3 lookVec = new Vec3(look.x(), look.y(), look.z());
+	    Vec3 upVec = new Vec3(up.x(), up.y(), up.z());
+	    Vec3 rightVec = new Vec3(-left.x(), -left.y(), -left.z());
+	    
+	    BiFunction<Double, Double, Vec3> getRay = (nx, ny) ->
+	    {
+	        return lookVec.add(rightVec.scale(nx * halfWidth)).add(upVec.scale(ny * halfHeight)).normalize();
+	    };
+
+	    Vec3 rayTL = getRay.apply(ndcLeft, ndcTop);
+	    Vec3 rayTR = getRay.apply(ndcRight, ndcTop);
+	    Vec3 rayBL = getRay.apply(ndcLeft, ndcBottom);
+	    Vec3 rayBR = getRay.apply(ndcRight, ndcBottom);
+
+	    Vec3 endTL = cameraPos.add(rayTL.scale(maxDistance));
+	    Vec3 endTR = cameraPos.add(rayTR.scale(maxDistance));
+	    Vec3 endBL = cameraPos.add(rayBL.scale(maxDistance));
+	    Vec3 endBR = cameraPos.add(rayBR.scale(maxDistance));
+
+	    double minW = Math.min(cameraPos.x, Math.min(endTL.x, Math.min(endTR.x, Math.min(endBL.x, endBR.x))));
+	    double minH = Math.min(cameraPos.y, Math.min(endTL.y, Math.min(endTR.y, Math.min(endBL.y, endBR.y))));
+	    double minD = Math.min(cameraPos.z, Math.min(endTL.z, Math.min(endTR.z, Math.min(endBL.z, endBR.z))));
+	    
+	    double maxW = Math.max(cameraPos.x, Math.max(endTL.x, Math.max(endTR.x, Math.max(endBL.x, endBR.x))));
+	    double maxH = Math.max(cameraPos.y, Math.max(endTL.y, Math.max(endTR.y, Math.max(endBL.y, endBR.y))));
+	    double maxD = Math.max(cameraPos.z, Math.max(endTL.z, Math.max(endTR.z, Math.max(endBL.z, endBR.z))));
+
+	    AABB searchBox = new AABB(minW, minH, minD, maxW, maxH, maxD);
+	    return minecraft.level.getEntities(minecraft.player, searchBox, t -> true);
+	}
+
 	public static HitResult raycastFromMouse(double maxDistance, boolean includeEntity)
 	{
         Minecraft minecraft = Minecraft.getInstance();
 		MouseHandler mouse = minecraft.mouseHandler;
-        if(minecraft.level == null || minecraft.player == null) 
+        if(minecraft.level == null || minecraft.player == null)
+        {
         	return null;
+        }
 
         Camera camera = minecraft.gameRenderer.getMainCamera();
         Vec3 cameraPos = camera.getPosition();

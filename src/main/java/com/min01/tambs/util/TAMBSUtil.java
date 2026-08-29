@@ -7,9 +7,11 @@ import java.util.function.Supplier;
 import com.min01.tambs.mixin.LevelInvoker;
 
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.LevelEntityGetter;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.LogicalSidedProvider;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkDirection;
@@ -23,6 +25,12 @@ public class TAMBSUtil
 		{
 			consumer.accept(level);
 		});
+	}
+	
+	public static Direction getNearest(Vec3 start, Vec3 end)
+	{
+		Vec3 pos = start.subtract(end);
+		return Direction.getNearest(pos.x, 0.0F, pos.z);
 	}
 	
 	public static void handlePacket(Supplier<NetworkEvent.Context> supplier, LogicalSide side, Consumer<NetworkEvent.Context> consumer)

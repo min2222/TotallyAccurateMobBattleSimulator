@@ -4,9 +4,11 @@ import org.joml.Vector4f;
 
 import com.min01.tambs.TAMBS;
 import com.min01.tambs.client.TAMBSClientData;
+import com.min01.tambs.gui.components.MobSelectTab;
 import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.misc.TAMBSKeyMappings;
 import com.min01.tambs.util.TAMBSClientUtil;
+import com.min01.tambs.util.TAMBSUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -51,6 +53,7 @@ public class ClientEventHandlerForge
 		while(TAMBSKeyMappings.ENTER_MOB_BATTLE_MODE.consumeClick())
 		{
 			minecraft.setScreen(new TAMBSScreen());
+            minecraft.player.setDeltaMovement(Vec3.ZERO);
 		}
 	}
 	
@@ -75,40 +78,42 @@ public class ClientEventHandlerForge
 		EntityRenderDispatcher entityRenderDispatcher = minecraft.getEntityRenderDispatcher();
 	    if(stage == Stage.AFTER_TRANSLUCENT_BLOCKS && TAMBSClientUtil.isMobBattleMode() && !TAMBSClientUtil.isCameraMoving()) 
 	    {
-	        HitResult hitResult = TAMBSClientUtil.raycastBlockFromMouse(300.0);
-	        if(hitResult instanceof BlockHitResult blockHit) 
-	        {
-	            BlockPos blockPos = blockHit.getBlockPos();
-	            BlockState blockState = minecraft.level.getBlockState(blockPos);
-	            if(!blockState.isAir())
-	            {
-	            	ResourceLocation location = ResourceLocation.fromNamespaceAndPath(TAMBS.MODID, "textures/misc/white.png");
-	                VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucent(location));
-	                VoxelShape shape = blockState.getShape(minecraft.level, blockPos, CollisionContext.of(camera.getEntity()));
-        	    	stack.pushPose();
-        	    	stack.translate(blockPos.getX() - camPos.x, blockPos.getY() - camPos.y, blockPos.getZ() - camPos.z);
-	        	    for(AABB aabb : shape.toAabbs())
-	        	    {
-	        	    	TAMBSClientUtil.drawBox(aabb.inflate(0.01F), stack, consumer, new Vector4f(1.0F, 1.0F, 1.0F, 0.5F), LightTexture.FULL_BLOCK);
-	        	    }
-        	    	stack.popPose();
-        	    	
-        	    	stack.pushPose();
-        	    	Vec3 pos = Vec3.atBottomCenterOf(blockPos.above());
-        	    	stack.translate(pos.x - camPos.x, pos.y - camPos.y, pos.z - camPos.z);
-        	    	if(TAMBSClientData.SELECTED != null)
-        	    	{
-        	    		Entity entity = TAMBSClientData.SELECTED.create(minecraft.level);
-        				Vec3 relative = minecraft.player.position().subtract(pos);
-        				Direction direction = Direction.getNearest(relative.x, relative.y, relative.z);
-        	    		EntityRenderer<? super Entity> renderer = entityRenderDispatcher.getRenderer(entity);
-        	    		
-        				stack.mulPose(Axis.YN.rotationDegrees(direction.toYRot()));
-    	    			renderer.render(entity, 0.0F, 0.0F, stack, bufferSource, LightTexture.FULL_BLOCK);
-        	    	}
-        	    	stack.popPose();
-	            }
-	        }
+	    	if(minecraft.screen instanceof TAMBSScreen screen && screen.getCurrentTab() instanceof MobSelectTab)
+	    	{
+		        HitResult hitResult = TAMBSClientUtil.raycastBlockFromMouse(300.0);
+		        if(hitResult instanceof BlockHitResult blockHit) 
+		        {
+		            BlockPos blockPos = blockHit.getBlockPos();
+		            BlockState blockState = minecraft.level.getBlockState(blockPos);
+		            if(!blockState.isAir())
+		            {
+		            	ResourceLocation location = ResourceLocation.fromNamespaceAndPath(TAMBS.MODID, "textures/misc/white.png");
+		                VertexConsumer consumer = bufferSource.getBuffer(RenderType.entityTranslucent(location));
+		                VoxelShape shape = blockState.getShape(minecraft.level, blockPos, CollisionContext.of(camera.getEntity()));
+	        	    	stack.pushPose();
+	        	    	stack.translate(blockPos.getX() - camPos.x, blockPos.getY() - camPos.y, blockPos.getZ() - camPos.z);
+		        	    for(AABB aabb : shape.toAabbs())
+		        	    {
+		        	    	TAMBSClientUtil.drawBox(aabb.inflate(0.01F), stack, consumer, new Vector4f(1.0F, 1.0F, 1.0F, 0.5F), LightTexture.FULL_BLOCK);
+		        	    }
+	        	    	stack.popPose();
+	        	    	
+	        	    	stack.pushPose();
+	        	    	Vec3 pos = Vec3.atBottomCenterOf(blockPos.above());
+	        	    	stack.translate(pos.x - camPos.x, pos.y - camPos.y, pos.z - camPos.z);
+	        	    	if(TAMBSClientData.SELECTED != null)
+	        	    	{
+	        	    		Entity entity = TAMBSClientData.SELECTED.create(minecraft.level);
+	        	    		EntityRenderer<? super Entity> renderer = entityRenderDispatcher.getRenderer(entity);
+	        				Direction direction = TAMBSUtil.getNearest(minecraft.player.position(), pos);
+	        	    		
+	        				stack.mulPose(Axis.YN.rotationDegrees(direction.toYRot()));
+	    	    			renderer.render(entity, 0.0F, 0.0F, stack, bufferSource, LightTexture.FULL_BLOCK);
+	        	    	}
+	        	    	stack.popPose();
+		            }
+		        }
+	    	}
 	    }
 	}
 }

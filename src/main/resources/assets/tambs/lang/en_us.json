@@ -1,6 +1,9 @@
 {
 	"tambs.screen.expand": "▲ Expand",
 	"tambs.screen.collapse": "▼ Collapse",
+	"tambs.screen.mob_select": "Mob Select",
+	"tambs.screen.team_setting": "Team Settings",
+	"tambs.screen.preset": "Preset",
 	"key.tambs.enter_mob_battle_mode": "Enter Mob Battle Mode",
 	"key.categories.tambs": "Totally Accurate Mob Battle Simulator"
 }
