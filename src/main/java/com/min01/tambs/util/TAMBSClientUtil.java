@@ -57,19 +57,6 @@ public class TAMBSClientUtil
 		return InputConstants.isKeyDown(window.getWindow(), key.getKey().getValue());
 	}
 	
-	//copied from KeyboardInput;
-	public static float calculateImpulse(boolean pInput, boolean pOtherInput)
-	{
-		if(pInput == pOtherInput)
-		{
-			return 0.0F;
-		} 
-		else 
-		{
-			return pInput ? 1.0F : -1.0F;
-		}
-	}
-	
 	public static void placeOrRemoveMob(int button)
 	{
         HitResult hitResult = raycastFromMouse(300.0, true);
