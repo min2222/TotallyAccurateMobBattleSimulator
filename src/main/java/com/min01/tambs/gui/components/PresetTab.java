@@ -1,13 +1,11 @@
 package com.min01.tambs.gui.components;
 
-import com.min01.tambs.gui.screen.TAMBSScreen;
-
 import net.minecraft.network.chat.Component;
 
 public class PresetTab extends TAMBSTab
 {
-	public PresetTab(TAMBSScreen screen, int pWidth, int pHeight, int index, Component pMessage)
+	public PresetTab()
 	{
-		super(screen, pWidth, pHeight, index, pMessage);
+		super(0, 0, 0, 0, Component.translatable("tambs.tab.preset"));
 	}
 }

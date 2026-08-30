@@ -59,7 +59,7 @@ public class TAMBSClientUtil
 	
 	public static void placeOrRemoveMob(int button)
 	{
-        HitResult hitResult = raycastFromMouse(300.0, true);
+        HitResult hitResult = raycastFromMouse(TAMBSClientData.MAX_DISTANCE, true);
     	if(button == 0)
     	{
             if(hitResult instanceof BlockHitResult blockHit)
@@ -68,9 +68,9 @@ public class TAMBSClientUtil
                 Direction direction = blockHit.getDirection();
                 blockPos = blockPos.relative(direction);
 
-                if(TAMBSClientData.SELECTED != null && !blockPos.equals(TAMBSClientData.LAST_PLACED))
+                if(TAMBSClientData.SELECTED_TYPE != null && !blockPos.equals(TAMBSClientData.LAST_PLACED))
                 {
-                    TAMBSNetwork.sendToServer(new PlaceMobPacket(ForgeRegistries.ENTITY_TYPES.getKey(TAMBSClientData.SELECTED), blockPos));
+                    TAMBSNetwork.sendToServer(new PlaceMobPacket(ForgeRegistries.ENTITY_TYPES.getKey(TAMBSClientData.SELECTED_TYPE), blockPos));
                     TAMBSClientData.LAST_PLACED = blockPos;
                 }
             }

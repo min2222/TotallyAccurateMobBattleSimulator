@@ -3,6 +3,7 @@ package com.min01.tambs.gui.components;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.util.TAMBSClientUtil;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -44,7 +45,7 @@ public class DragBox
 	{
 		if(this.enabled)
 		{
-     		List<Entity> list = TAMBSClientUtil.getEntities(this.minX, this.minY, this.maxX, this.maxY, 300.0);
+     		List<Entity> list = TAMBSClientUtil.getEntities(this.minX, this.minY, this.maxX, this.maxY, TAMBSClientData.MAX_DISTANCE);
      		if(this.consumer != null)
      		{
         		list.forEach(this.consumer::accept);

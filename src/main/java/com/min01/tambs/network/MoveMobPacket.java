@@ -5,36 +5,37 @@ import java.util.function.Supplier;
 
 import com.min01.tambs.util.TAMBSUtil;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
-public class RemoveMobPacket 
+public class MoveMobPacket 
 {
     private final UUID entityUUID;
-    private final boolean isCtrlDown;
+    private final BlockPos blockPos;
 	
-	public RemoveMobPacket(UUID entityUUID, boolean isCtrlDown) 
+	public MoveMobPacket(UUID entityUUID, BlockPos blockPos) 
 	{
 		this.entityUUID = entityUUID;
-		this.isCtrlDown = isCtrlDown;
+		this.blockPos = blockPos;
 	}
 
-	public static RemoveMobPacket read(FriendlyByteBuf buf)
+	public static MoveMobPacket read(FriendlyByteBuf buf)
 	{
-		return new RemoveMobPacket(buf.readUUID(), buf.readBoolean());
+		return new MoveMobPacket(buf.readUUID(), buf.readBlockPos());
 	}
 
 	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeUUID(this.entityUUID);
-		buf.writeBoolean(this.isCtrlDown);
+		buf.writeBlockPos(this.blockPos);
 	}
 	
-	public static boolean handle(RemoveMobPacket message, Supplier<NetworkEvent.Context> supplier) 
+	public static boolean handle(MoveMobPacket message, Supplier<NetworkEvent.Context> supplier) 
 	{
 		TAMBSUtil.handlePacket(supplier, LogicalSide.SERVER, ctx ->
 		{
@@ -42,14 +43,8 @@ public class RemoveMobPacket
 			Entity entity = TAMBSUtil.getEntityByUUID(sender.level, message.entityUUID);
 			if(entity != null)
 			{
-				if(message.isCtrlDown)
-				{
-					entity.discard();
-				}
-				else if(entity instanceof LivingEntity living)
-				{
-					living.discard();
-				}
+				entity.setPos(Vec3.atBottomCenterOf(message.blockPos));
+				entity.setOldPosAndRot();
 			}
 		});
 		return true;

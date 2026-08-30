@@ -1,10 +1,11 @@
 {
-	"tambs.screen.expand": "▲ 펼치기",
-	"tambs.screen.collapse": "▼ 접기",
-	"tambs.screen.mob_select": "몹 선택",
-	"tambs.screen.preset": "프리셋",
-	"tambs.screen.tools": "도구",
-	"tambs.screen.options": "설정",
+	"tambs.button.expand": "▲ 펼치기",
+	"tambs.button.collapse": "▼ 접기",
+	"tambs.tab.mob_select": "몹 선택",
+	"tambs.tab.preset": "프리셋",
+	"tambs.tab.tools": "도구",
+	"tambs.tab.options": "설정",
+	"tambs.button.mob_teleport": "몹 이동",
 	"key.tambs.enter_mob_battle_mode": "몹배틀 모드 진입",
 	"key.categories.tambs": "Totally Accurate Mob Battle Simulator"
 }

@@ -1,66 +1,106 @@
 package com.min01.tambs.gui.components;
 
+import java.util.function.Consumer;
+
+import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.gui.screen.TAMBSScreen;
-import com.min01.tambs.network.RemoveMobPacket;
+import com.min01.tambs.network.MoveMobPacket;
 import com.min01.tambs.network.TAMBSNetwork;
+import com.min01.tambs.util.TAMBSClientUtil;
+import com.min01.tambs.util.TAMBSUtil;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class ToolTab extends TAMBSTab
 {
-	private final DragBox dragBox = new DragBox();
+	private Checkbox teleportBox;
 	
-	public ToolTab(TAMBSScreen screen, int pWidth, int pHeight, int index, Component pMessage)
+	public ToolTab(TAMBSScreen screen)
 	{
-		super(screen, pWidth, pHeight, index, pMessage);
+		super(screen.width / 4, screen.height - (TAMBSScreen.TAB_HEIGHT + 45), screen.width, screen.height, Component.translatable("tambs.tab.tools"));
+		this.teleportBox = new Checkbox(5, screen.height - TAMBSScreen.TAB_HEIGHT, 20, 20, Component.translatable("tambs.button.mob_teleport"), false);
 	}
 	
 	@Override
-	public void buildGrid() 
+	public void visitChildren(Consumer<AbstractWidget> pConsumer) 
 	{
-        int width = this.width / COLUMN_COUNT;
-        int index = 0;
-        
-        Minecraft minecraft =  Minecraft.getInstance();
-        Scoreboard scoreboard = minecraft.level.getScoreboard();
-        for(PlayerTeam team : scoreboard.getPlayerTeams())
-        {
-            int column = index % COLUMN_COUNT;
-            int row = index / COLUMN_COUNT;
-            TeamCell cell = new TeamCell(column * width, this.height - TAMBSScreen.COLUMN_HEIGHT + (row * CELL_HEIGHT), width, CELL_HEIGHT, team);
-            this.all.add(cell);
-            index++;
-        }
-        this.updateInnerHeight(index);
+    	pConsumer.accept(this.teleportBox);
+		super.visitChildren(pConsumer);
 	}
-
+	
 	@Override
-	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick)
+	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) 
 	{
-		if(this.screen.isCollapsed())
+		if(!this.isActive())
 		{
-			this.dragBox.render(pGuiGraphics, pMouseX, pMouseY);
+			if(this.teleportBox.selected())
+			{
+		        HitResult hitResult = TAMBSClientUtil.raycastFromMouse(TAMBSClientData.MAX_DISTANCE, true);
+				if(pButton == 0)
+				{
+		            if(hitResult instanceof EntityHitResult entityHit)
+		            {
+		            	if(TAMBSClientData.LAST_PLACED == null || !entityHit.getEntity().blockPosition().equals(TAMBSClientData.LAST_PLACED))
+		            	{
+			            	TAMBSClientData.selectUUID(entityHit.getEntity().getUUID());
+			            	Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+		            	}
+		            }
+		            else if(TAMBSClientData.SELECTED_UUID != null && hitResult instanceof BlockHitResult blockHit)
+		            {
+		            	BlockPos blockPos = blockHit.getBlockPos();
+		                Direction direction = blockHit.getDirection();
+		                blockPos = blockPos.relative(direction);
+		            	TAMBSNetwork.sendToServer(new MoveMobPacket(TAMBSClientData.SELECTED_UUID, blockPos));
+		    			Entity entity = TAMBSUtil.getEntityByUUID(Minecraft.getInstance().level, TAMBSClientData.SELECTED_UUID);
+		    			if(entity != null)
+		    			{
+		    				entity.setPos(Vec3.atBottomCenterOf(blockPos));
+		    				entity.setOldPosAndRot();
+		    			}
+		            	TAMBSClientData.selectUUID(null);
+		            	TAMBSClientData.LAST_PLACED = entity.blockPosition();
+		            }
+				}
+				else if(pButton == 1)
+				{
+					TAMBSClientData.SELECTED_UUID = null;
+					TAMBSClientData.LAST_PLACED = null;
+	            	Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+				}
+			}
+			return false;
 		}
-		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+		return super.mouseClicked(pMouseX, pMouseY, pButton);
+	}
+	
+	@Override
+	public void mouseMoved(double pMouseX, double pMouseY)
+	{
+		if(!this.isActive())
+		{
+			TAMBSClientData.LAST_PLACED = null;
+		}
+		super.mouseMoved(pMouseX, pMouseY);
 	}
 	
 	@Override
 	public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY)
 	{
-		if(this.screen.isCollapsed())
+		if(this.isActive())
 		{
-			if(pButton == 0)
-			{
-				this.dragBox.enable(pMouseX, pMouseY);
-				this.dragBox.setCallback(t ->
-				{
-					TAMBSNetwork.sendToServer(new RemoveMobPacket(t.getUUID(), false));
-				});
-			}
 		}
 		return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
 	}
@@ -68,7 +108,15 @@ public class ToolTab extends TAMBSTab
 	@Override
 	public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) 
 	{
-		this.dragBox.disable();
+		if(this.isActive())
+		{
+		}
 		return super.mouseReleased(pMouseX, pMouseY, pButton);
+	}
+	
+	@Override
+	public boolean renderBlockHighlight() 
+	{
+		return this.teleportBox.selected() && TAMBSClientData.SELECTED_UUID != null;
 	}
 }

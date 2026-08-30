@@ -10,7 +10,8 @@
 	"client": [
 		"MixinKeyboardInput",
 		"MixinMouseHandler",
-		"MixinCamera"
+		"MixinCamera",
+		"MixinMinecraft"
 	],
 	"server": [
 	],
