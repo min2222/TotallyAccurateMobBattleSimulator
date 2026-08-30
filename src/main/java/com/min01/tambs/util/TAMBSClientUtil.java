@@ -59,7 +59,7 @@ public class TAMBSClientUtil
 	
 	public static void placeOrRemoveMob(int button)
 	{
-        HitResult hitResult = raycastFromMouse(TAMBSClientData.MAX_DISTANCE, true);
+        HitResult hitResult = raycastFromMouse(TAMBSClientData.INSTANCE.mouseDistance(), true);
     	if(button == 0)
     	{
             if(hitResult instanceof BlockHitResult blockHit)

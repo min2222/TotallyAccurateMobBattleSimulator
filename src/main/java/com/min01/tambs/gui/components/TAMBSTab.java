@@ -2,6 +2,8 @@ package com.min01.tambs.gui.components;
 
 import java.util.function.Consumer;
 
+import com.min01.tambs.client.TAMBSReloadListener.Options;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.tabs.Tab;
@@ -50,6 +52,16 @@ public class TAMBSTab extends AbstractWidget implements Tab
 	protected void updateWidgetNarration(NarrationElementOutput pNarrationElementOutput) 
 	{
 
+	}
+	
+	public void load(Options options)
+	{
+		
+	}
+	
+	public void save(Options options)
+	{
+		
 	}
 
 	public boolean renderBlockHighlight() 

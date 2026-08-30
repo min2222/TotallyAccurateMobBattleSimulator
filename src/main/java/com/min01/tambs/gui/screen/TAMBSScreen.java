@@ -48,7 +48,7 @@ public class TAMBSScreen extends Screen
 	@Override
 	protected void init()
 	{
-		this.tabNavigationBar = new TAMBSTabNavigationBar(this.height, this.width, this.tabManager, List.of(new MobSelectTab(this), new PresetTab(), new ToolTab(this), new OptionTab()));
+		this.tabNavigationBar = new TAMBSTabNavigationBar(this.height, this.width, this.tabManager, List.of(new MobSelectTab(this), new PresetTab(), new ToolTab(this), new OptionTab(this)));
 		this.addRenderableWidget(this.tabNavigationBar);
 
 		this.collapseButton = new TextOnlyButton(Button.builder(COLLAPSE, pButton -> 

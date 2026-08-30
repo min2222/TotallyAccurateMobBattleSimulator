@@ -1,11 +1,14 @@
 {
-	"tambs.screen.expand": "▲ Expand",
-	"tambs.screen.collapse": "▼ Collapse",
-	"tambs.screen.mob_select": "Mob Select",
-	"tambs.screen.preset": "Preset",
-	"tambs.screen.tools": "Tools",
-	"tambs.screen.options": "Options",
+	"tambs.button.expand": "▲ Expand",
+	"tambs.button.collapse": "▼ Collapse",
+	"tambs.tab.mob_select": "Mob Select",
+	"tambs.tab.preset": "Preset",
+	"tambs.tab.tools": "Tools",
+	"tambs.tab.options": "Options",
 	"tambs.button.mob_teleport": "Mob Teleport",
+	"tambs.option.mouse_distance": "Mouse Distance",
+	"tambs.option.play_speed": "Play Speed",
 	"key.tambs.enter_mob_battle_mode": "Enter Mob Battle Mode",
+	"key.tambs.play": "Play/Pause",
 	"key.categories.tambs": "Totally Accurate Mob Battle Simulator"
 }

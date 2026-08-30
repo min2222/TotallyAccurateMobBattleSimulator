@@ -4,6 +4,7 @@ import org.joml.Vector4f;
 
 import com.min01.tambs.TAMBS;
 import com.min01.tambs.client.TAMBSClientData;
+import com.min01.tambs.client.TAMBSReloadListener;
 import com.min01.tambs.gui.components.MobSelectTab;
 import com.min01.tambs.gui.components.TAMBSTab;
 import com.min01.tambs.gui.screen.TAMBSScreen;
@@ -43,6 +44,7 @@ import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 @Mod.EventBusSubscriber(modid = TAMBS.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientEventHandlerForge
@@ -65,6 +67,7 @@ public class ClientEventHandlerForge
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event)
     {
     	TAMBSClientData.clear();
+    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
     }
 	
 	@SubscribeEvent
@@ -99,7 +102,7 @@ public class ClientEventHandlerForge
 	    {
 	    	if(minecraft.screen instanceof TAMBSScreen screen && screen.getCurrentTab() instanceof TAMBSTab tab)
 	    	{
-		        HitResult hitResult = TAMBSClientUtil.raycastBlockFromMouse(TAMBSClientData.MAX_DISTANCE);
+		        HitResult hitResult = TAMBSClientUtil.raycastBlockFromMouse(TAMBSClientData.INSTANCE.mouseDistance());
 		        if(hitResult instanceof BlockHitResult blockHit) 
 		        {
 		            BlockPos blockPos = blockHit.getBlockPos();

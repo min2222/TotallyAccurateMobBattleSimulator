@@ -1,9 +1,11 @@
 package com.min01.tambs.event;
 
 import com.min01.tambs.TAMBS;
+import com.min01.tambs.client.TAMBSReloadListener;
 import com.min01.tambs.misc.TAMBSKeyMappings;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -19,6 +21,12 @@ public class ClientEventHandler
     	{
     		
     	});
+    }
+    
+    @SubscribeEvent
+    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event)
+    {
+    	event.registerReloadListener(new TAMBSReloadListener());
     }
     
     @SubscribeEvent

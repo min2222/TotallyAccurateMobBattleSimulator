@@ -3,6 +3,7 @@ package com.min01.tambs.gui.components;
 import org.apache.commons.lang3.StringUtils;
 
 import com.min01.tambs.client.TAMBSClientData;
+import com.min01.tambs.client.TAMBSReloadListener.Options;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
@@ -35,14 +36,17 @@ public class MobCell extends AbstractWidget
             	if(bookmark)
             	{
             		this.bookmarkButton.setMessage(Component.literal("☆"));
+        	        this.save(TAMBSClientData.INSTANCE, true);
             	}
             	else
             	{
             		this.bookmarkButton.setMessage(Component.literal("★").withStyle(ChatFormatting.GOLD));
+        	        this.save(TAMBSClientData.INSTANCE, false);
             	}
     			this.isBookmark = !bookmark;
         	}
         }).bounds(this.getX() + 1, this.getY() + 1, 13, 13));
+        this.load(TAMBSClientData.INSTANCE);
     }
 
     @Override
@@ -67,6 +71,22 @@ public class MobCell extends AbstractWidget
             }
     	}
     }
+    
+	public void load(Options options)
+	{
+		ResourceLocation location = ForgeRegistries.ENTITY_TYPES.getKey(this.entity.getType());
+		if(options.isBookmarked(location))
+		{
+			this.isBookmark = true;
+    		this.bookmarkButton.setMessage(Component.literal("★").withStyle(ChatFormatting.GOLD));
+		}
+	}
+	
+	public void save(Options options, boolean remove)
+	{
+		ResourceLocation location = ForgeRegistries.ENTITY_TYPES.getKey(this.entity.getType());
+		options.bookmark(location, remove);
+	}
     
     @Override
     public void setX(int pX) 

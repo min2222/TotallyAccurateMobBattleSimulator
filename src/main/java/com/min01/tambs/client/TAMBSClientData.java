@@ -2,13 +2,15 @@ package com.min01.tambs.client;
 
 import java.util.UUID;
 
+import com.min01.tambs.client.TAMBSReloadListener.Options;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 
 public class TAMBSClientData 
 {
+	public static Options INSTANCE = new Options();
 	public static boolean PAUSED = true;
-	public static double MAX_DISTANCE = 200;
 
 	public static BlockPos LAST_PLACED;
 	public static EntityType<?> SELECTED_TYPE;

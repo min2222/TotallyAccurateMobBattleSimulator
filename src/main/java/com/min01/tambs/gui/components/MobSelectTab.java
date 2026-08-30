@@ -88,6 +88,12 @@ public class MobSelectTab extends TAMBSTab
 	}
 	
 	@Override
+	public boolean renderBlockHighlight()
+	{
+		return true;
+	}
+	
+	@Override
 	public void doLayout(ScreenRectangle pRectangle) 
 	{
 		super.doLayout(pRectangle);
