@@ -6,6 +6,7 @@ import com.min01.tambs.util.TAMBSUtil;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,22 +24,25 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class PlaceMobPacket 
 {
     private final ResourceLocation entityName;
+    private final CompoundTag tag;
     private final BlockPos blockPos;
 	
-	public PlaceMobPacket(ResourceLocation entityName, BlockPos blockPos) 
+	public PlaceMobPacket(ResourceLocation entityName, CompoundTag tag, BlockPos blockPos) 
 	{
 		this.entityName = entityName;
+		this.tag = tag;
 		this.blockPos = blockPos;
 	}
 
 	public static PlaceMobPacket read(FriendlyByteBuf buf)
 	{
-		return new PlaceMobPacket(buf.readResourceLocation(), buf.readBlockPos());
+		return new PlaceMobPacket(buf.readResourceLocation(), buf.readNbt(), buf.readBlockPos());
 	}
 
 	public void write(FriendlyByteBuf buf)
 	{
 		buf.writeResourceLocation(this.entityName);
+		buf.writeNbt(this.tag);
 		buf.writeBlockPos(this.blockPos);
 	}
 	
@@ -49,15 +53,19 @@ public class PlaceMobPacket
 			ServerPlayer sender = ctx.getSender();
 			EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(message.entityName);
 			Entity entity = type.create(sender.level);
+			if(entity instanceof Mob mob)
+			{
+				ForgeEventFactory.onFinalizeSpawn(mob, (ServerLevelAccessor) sender.level, sender.level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.SPAWN_EGG, null, null);
+			}
+			if(message.tag != null)
+			{
+				entity.load(message.tag);
+			}
 			entity.setPos(Vec3.atBottomCenterOf(message.blockPos));
 			Direction direction = TAMBSUtil.getNearest(sender.position(), entity.position());
 			entity.setYRot(direction.toYRot());
 			entity.setYHeadRot(direction.toYRot());
 			entity.setYBodyRot(direction.toYRot());
-			if(entity instanceof Mob mob)
-			{
-				ForgeEventFactory.onFinalizeSpawn(mob, (ServerLevelAccessor) sender.level, sender.level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.SPAWN_EGG, null, null);
-			}
 			sender.level.addFreshEntity(entity);
 		});
 		return true;

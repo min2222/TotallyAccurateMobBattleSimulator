@@ -33,5 +33,6 @@ public class ClientEventHandler
     public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event)
     {
     	event.register(TAMBSKeyMappings.ENTER_MOB_BATTLE_MODE);
+    	event.register(TAMBSKeyMappings.PLAY);
     }
 }

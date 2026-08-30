@@ -3,9 +3,9 @@ package com.min01.tambs.client;
 import java.util.UUID;
 
 import com.min01.tambs.client.TAMBSReloadListener.Options;
+import com.min01.tambs.gui.components.MobCell;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.EntityType;
 
 public class TAMBSClientData 
 {
@@ -13,12 +13,12 @@ public class TAMBSClientData
 	public static boolean PAUSED = true;
 
 	public static BlockPos LAST_PLACED;
-	public static EntityType<?> SELECTED_TYPE;
+	public static MobCell SELECTED_CELL;
 	public static UUID SELECTED_UUID;
 	
-	public static void selectType(EntityType<?> type)
+	public static void selectCell(MobCell cell)
 	{
-		SELECTED_TYPE = type;
+		SELECTED_CELL = cell;
 	}
 	
 	public static void selectUUID(UUID uuid)
@@ -35,7 +35,7 @@ public class TAMBSClientData
 	{
 		PAUSED = true;
 		LAST_PLACED = null;
-		SELECTED_TYPE = null;
+		SELECTED_CELL = null;
 		SELECTED_UUID = null;
 	}
 	

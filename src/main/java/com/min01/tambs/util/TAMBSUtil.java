@@ -8,6 +8,7 @@ import com.min01.tambs.mixin.LevelInvoker;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.LevelEntityGetter;
@@ -31,6 +32,27 @@ public class TAMBSUtil
 	{
 		Vec3 pos = start.subtract(end);
 		return Direction.getNearest(pos.x, 0.0F, pos.z);
+	}
+	
+	public static CompoundTag saveEntity(Entity entity)
+	{
+		CompoundTag tag = entity.saveWithoutId(new CompoundTag());
+		tag.remove("Pos");
+		tag.remove("Motion");
+		tag.remove("Rotation");
+		tag.remove("FallDistance");
+		tag.remove("Fire");
+		tag.remove("Air");
+		tag.remove("OnGround");
+		tag.remove("Invulnerable");
+		tag.remove("PortalCooldown");
+		tag.remove("UUID");
+		if(tag.contains("ForgeCaps", 10))
+		{
+			CompoundTag caps = tag.getCompound("ForgeCaps");
+			tag.put("ForgeCaps", caps.copy());
+		}
+		return tag;
 	}
 	
 	public static void handlePacket(Supplier<NetworkEvent.Context> supplier, LogicalSide side, Consumer<NetworkEvent.Context> consumer)

@@ -45,7 +45,7 @@ public class DragBox
 	{
 		if(this.enabled)
 		{
-     		List<Entity> list = TAMBSClientUtil.getEntities(this.minX, this.minY, this.maxX, this.maxY, TAMBSClientData.INSTANCE.mouseDistance());
+     		List<Entity> list = TAMBSClientUtil.getEntities(this.minX, this.minY, this.maxX, this.maxY, Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance));
      		if(this.consumer != null)
      		{
         		list.forEach(this.consumer::accept);

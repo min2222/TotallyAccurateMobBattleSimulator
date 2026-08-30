@@ -5,13 +5,18 @@
 	"plugin": "com.min01.tambs.misc.TAMBSMixinPlugin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"LevelInvoker"
+		"LevelInvoker",
+		"MixinAbilities",
+		"MixinMinecraftServer",
+		"MixinEntity"
 	],
 	"client": [
 		"MixinKeyboardInput",
 		"MixinMouseHandler",
 		"MixinCamera",
-		"MixinMinecraft"
+		"MixinMinecraft",
+		"MixinTimer",
+		"MixinGui"
 	],
 	"server": [
 	],

@@ -8,4 +8,5 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 public class TAMBSKeyMappings
 {
 	public static final KeyMapping ENTER_MOB_BATTLE_MODE = new KeyMapping("key.tambs.enter_mob_battle_mode", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_M, "key.categories.tambs");
+	public static final KeyMapping PLAY = new KeyMapping("key.tambs.play", KeyConflictContext.IN_GAME, InputConstants.Type.KEYSYM, InputConstants.KEY_P, "key.categories.tambs");
 }

@@ -3,6 +3,7 @@ package com.min01.tambs.gui.screen;
 import java.util.List;
 
 import com.min01.tambs.client.TAMBSClientData;
+import com.min01.tambs.client.TAMBSReloadListener;
 import com.min01.tambs.gui.components.MobCell;
 import com.min01.tambs.gui.components.MobSelectTab;
 import com.min01.tambs.gui.components.OptionTab;
@@ -11,6 +12,7 @@ import com.min01.tambs.gui.components.TAMBSTab;
 import com.min01.tambs.gui.components.TAMBSTabNavigationBar;
 import com.min01.tambs.gui.components.TextOnlyButton;
 import com.min01.tambs.gui.components.ToolTab;
+import com.min01.tambs.misc.TAMBSKeyMappings;
 import com.min01.tambs.util.TAMBSClientUtil;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -23,8 +25,11 @@ import net.minecraft.client.gui.layouts.FrameLayout;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.loading.FMLPaths;
 
 public class TAMBSScreen extends Screen
 {
@@ -48,20 +53,31 @@ public class TAMBSScreen extends Screen
 	@Override
 	protected void init()
 	{
-		this.tabNavigationBar = new TAMBSTabNavigationBar(this.height, this.width, this.tabManager, List.of(new MobSelectTab(this), new PresetTab(), new ToolTab(this), new OptionTab(this)));
+		this.tabNavigationBar = new TAMBSTabNavigationBar(this.height, this.width, this.tabManager, List.of(new MobSelectTab(this), new PresetTab(this), new ToolTab(this), new OptionTab(this)));
 		this.addRenderableWidget(this.tabNavigationBar);
 
 		this.collapseButton = new TextOnlyButton(Button.builder(COLLAPSE, pButton -> 
         {
+			TAMBSClientData.pause(true);
             this.isCollapsed = !this.isCollapsed;
     		pButton.setMessage(this.isCollapsed ? EXPAND : COLLAPSE);
 			FrameLayout.centerInRectangle(this.collapseButton, 0, this.isCollapsed ? this.height - 20 : this.height - (TAB_HEIGHT + 65), this.font.width(COLLAPSE) + 10, 20);
 			this.tabNavigationBar.visitWidgets(widget -> widget.active = widget.visible = !this.isCollapsed);
             this.minecraft.player.setDeltaMovement(Vec3.ZERO);
+    		if(this.getCurrentTab() instanceof TAMBSTab tab)
+    		{
+    			tab.save(TAMBSClientData.INSTANCE);
+    	    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
+    		}
         }).bounds(0, 0, this.font.width(COLLAPSE) + 10, 20));
 		this.addRenderableWidget(this.collapseButton);
 		this.tabNavigationBar.selectTab(0, false);
 		this.repositionElements();
+		
+		if(this.getCurrentTab() instanceof TAMBSTab tab)
+		{
+			tab.load(TAMBSClientData.INSTANCE);
+		}
 	}
 
 	@Override
@@ -76,6 +92,11 @@ public class TAMBSScreen extends Screen
 			this.tabNavigationBar.visitWidgets(widget -> widget.active = widget.visible = !this.isCollapsed);
 			ScreenRectangle rectangle = new ScreenRectangle(0, this.height - (TAB_HEIGHT + 45), this.width, this.height);
 			this.tabManager.setTabArea(rectangle);
+    		if(this.getCurrentTab() instanceof TAMBSTab tab)
+    		{
+    			tab.save(TAMBSClientData.INSTANCE);
+    	    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
+    		}
 		}
 	}
 
@@ -92,11 +113,22 @@ public class TAMBSScreen extends Screen
 		if(this.isPauseScreen())
 		{
 			this.minecraft.level.guardEntityTick(t -> this.minecraft.level.tickNonPassenger(t), this.minecraft.player);
-			if(this.isCollapsed && TAMBSClientUtil.isCameraMoving())
-			{
-				this.minecraft.mouseHandler.grabMouse();
-				this.minecraft.mouseHandler.turnPlayer();
-			}
+		}
+		if(this.isCollapsed && TAMBSClientUtil.isCameraMoving())
+		{
+			this.minecraft.mouseHandler.grabMouse();
+			this.minecraft.mouseHandler.turnPlayer();
+		}
+	}
+	
+	@Override
+	public void onClose() 
+	{
+		super.onClose();
+		if(this.getCurrentTab() instanceof TAMBSTab tab)
+		{
+			tab.save(TAMBSClientData.INSTANCE);
+	    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
 		}
 	}
 	
@@ -105,6 +137,12 @@ public class TAMBSScreen extends Screen
 	{
 		if(this.isCollapsed)
 		{
+			if(pKeyCode == TAMBSKeyMappings.PLAY.getKey().getValue())
+			{
+				TAMBSClientData.pause(!TAMBSClientData.isPaused());
+            	this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+				return false;
+			}
 			if(pKeyCode == 256 && this.shouldCloseOnEsc()) 
 			{
 				this.onClose();
@@ -115,6 +153,7 @@ public class TAMBSScreen extends Screen
 		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
 	}
 
+	//FIXME widget position weird when change screen resolution;
 	@Override
 	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick)
 	{

@@ -9,7 +9,9 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 
+import com.min01.tambs.TAMBS;
 import com.min01.tambs.client.TAMBSClientData;
+import com.min01.tambs.gui.components.MobCell;
 import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.network.PlaceMobPacket;
 import com.min01.tambs.network.RemoveMobPacket;
@@ -26,6 +28,7 @@ import net.minecraft.client.MouseHandler;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
@@ -38,10 +41,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class TAMBSClientUtil 
 {
+	public static final ResourceLocation PAUSED_ICON = ResourceLocation.fromNamespaceAndPath(TAMBS.MODID, "textures/gui/paused.png");
+	public static final ResourceLocation PLAY_ICON = ResourceLocation.fromNamespaceAndPath(TAMBS.MODID, "textures/gui/play.png");
+	
 	public static boolean isMobBattleMode()
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		return minecraft.screen instanceof TAMBSScreen screen && screen.isCollapsed() && screen.isPauseScreen();
+		return minecraft.screen instanceof TAMBSScreen screen && screen.isCollapsed();
 	}
 	
 	public static boolean isCameraMoving()
@@ -59,7 +65,11 @@ public class TAMBSClientUtil
 	
 	public static void placeOrRemoveMob(int button)
 	{
-        HitResult hitResult = raycastFromMouse(TAMBSClientData.INSTANCE.mouseDistance(), true);
+		if(!TAMBSClientData.isPaused())
+		{
+			return;
+		}
+        HitResult hitResult = raycastFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
     	if(button == 0)
     	{
             if(hitResult instanceof BlockHitResult blockHit)
@@ -68,9 +78,10 @@ public class TAMBSClientUtil
                 Direction direction = blockHit.getDirection();
                 blockPos = blockPos.relative(direction);
 
-                if(TAMBSClientData.SELECTED_TYPE != null && !blockPos.equals(TAMBSClientData.LAST_PLACED))
+                MobCell cell = TAMBSClientData.SELECTED_CELL;
+                if(cell != null && !blockPos.equals(TAMBSClientData.LAST_PLACED))
                 {
-                    TAMBSNetwork.sendToServer(new PlaceMobPacket(ForgeRegistries.ENTITY_TYPES.getKey(TAMBSClientData.SELECTED_TYPE), blockPos));
+                    TAMBSNetwork.sendToServer(new PlaceMobPacket(ForgeRegistries.ENTITY_TYPES.getKey(cell.entity.getType()), cell.tag, blockPos));
                     TAMBSClientData.LAST_PLACED = blockPos;
                 }
             }

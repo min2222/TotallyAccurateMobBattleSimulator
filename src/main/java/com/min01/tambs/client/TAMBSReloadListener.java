@@ -47,8 +47,6 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
     public static void save(Path pPath)
     {
         File file = new File(pPath.toFile(), "tambs_options.json");
-        file.getParentFile().mkdirs();
-
         try(FileWriter writer = new FileWriter(file))
         {
             GSON.toJson(TAMBSClientData.INSTANCE, writer);
@@ -63,20 +61,11 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
     {
         public String mouse_distance = "200";
         public String play_speed = "1.0";
+        public String fly_speed = "1.0";
         public List<String> bookmarks = new ArrayList<>();
         public FilterCategory overlay = new FilterCategory();
         public FilterCategory mob_griefing = new FilterCategory();
         public FilterCategory mob_kill = new FilterCategory();
-        
-        public double mouseDistance()
-        {
-        	return Double.valueOf(this.mouse_distance);
-        }
-        
-        public void setMouseDistance(double dist)
-        {
-        	this.mouse_distance = String.valueOf(dist);
-        }
         
         public boolean isBookmarked(ResourceLocation name)
         {
@@ -102,6 +91,18 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
         public List<String> blacklist = new ArrayList<>();
         public List<String> whitelist = new ArrayList<>();
 
+        public boolean filter(ResourceLocation location)
+        {
+        	if(this.mode.equals("whitelist") && !this.isWhitelisted(location))
+        	{
+        		return true;
+        	}
+        	if(this.mode.equals("blacklist") && this.isBlacklisted(location))
+        	{
+        		return true;
+        	}
+        	return false;
+        }
         public boolean isBlacklisted(ResourceLocation location) 
         {
             return this.blacklist != null && this.blacklist.contains(location.toString());

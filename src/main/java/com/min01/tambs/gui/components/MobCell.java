@@ -13,6 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,11 +23,19 @@ public class MobCell extends AbstractWidget
 {
     private TextOnlyButton bookmarkButton;
     private boolean isBookmark;
-    private final LivingEntity entity;
+    public final LivingEntity entity;
+    public final CompoundTag tag;
     
+    //TODO delete button for PresetTab;
     public MobCell(int pX, int pY, int pWidth, int pHeight, LivingEntity entity) 
     {
+    	this(pX, pY, pWidth, pHeight, entity, null);
+    }
+    
+    public MobCell(int pX, int pY, int pWidth, int pHeight, LivingEntity entity, CompoundTag tag) 
+    {
         super(pX, pY, pWidth, pHeight, entity.getDisplayName());
+        this.tag = tag;
         this.entity = entity;
         this.bookmarkButton = new TextOnlyButton(Button.builder(Component.literal("☆"), pButton -> 
         {
@@ -110,7 +119,7 @@ public class MobCell extends AbstractWidget
     		this.bookmarkButton.mouseClicked(pMouseX, pMouseY, pButton);
      		if(!this.bookmarkButton.isMouseOver(pMouseX, pMouseY))
     		{
-     	    	TAMBSClientData.selectType(this.entity.getType());
+     	    	TAMBSClientData.selectCell(this);
     		}
     	}
     	return super.mouseClicked(pMouseX, pMouseY, pButton);

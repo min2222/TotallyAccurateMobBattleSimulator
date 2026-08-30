@@ -5,7 +5,7 @@ import org.joml.Vector4f;
 import com.min01.tambs.TAMBS;
 import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.client.TAMBSReloadListener;
-import com.min01.tambs.gui.components.MobSelectTab;
+import com.min01.tambs.gui.components.MobCell;
 import com.min01.tambs.gui.components.TAMBSTab;
 import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.misc.TAMBSKeyMappings;
@@ -39,7 +39,7 @@ import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.gui.overlay.NamedGuiOverlay;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -73,9 +73,10 @@ public class ClientEventHandlerForge
 	@SubscribeEvent
 	public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Pre event)
 	{
-		if(event.getOverlay() == VanillaGuiOverlay.CROSSHAIR.type())
+		NamedGuiOverlay overlay = event.getOverlay();
+		if(TAMBSClientData.INSTANCE.overlay.filter(overlay.id()))
 		{
-			//TODO render pause/play icon;
+			event.setCanceled(true);
 		}
 	}
 	
@@ -98,11 +99,11 @@ public class ClientEventHandlerForge
 		Vec3 camPos = camera.getPosition();
 		MultiBufferSource bufferSource = minecraft.renderBuffers().bufferSource();
 		EntityRenderDispatcher entityRenderDispatcher = minecraft.getEntityRenderDispatcher();
-	    if(stage == Stage.AFTER_TRANSLUCENT_BLOCKS && TAMBSClientUtil.isMobBattleMode() && !TAMBSClientUtil.isCameraMoving()) 
+	    if(stage == Stage.AFTER_TRANSLUCENT_BLOCKS && TAMBSClientUtil.isMobBattleMode() && !TAMBSClientUtil.isCameraMoving() && TAMBSClientData.isPaused()) 
 	    {
 	    	if(minecraft.screen instanceof TAMBSScreen screen && screen.getCurrentTab() instanceof TAMBSTab tab)
 	    	{
-		        HitResult hitResult = TAMBSClientUtil.raycastBlockFromMouse(TAMBSClientData.INSTANCE.mouseDistance());
+		        HitResult hitResult = TAMBSClientUtil.raycastBlockFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance));
 		        if(hitResult instanceof BlockHitResult blockHit) 
 		        {
 		            BlockPos blockPos = blockHit.getBlockPos();
@@ -123,14 +124,19 @@ public class ClientEventHandlerForge
 		        	    	stack.popPose();
 	        	    	}
 	        	    	
-	        	    	if(tab instanceof MobSelectTab)
+	        	    	if(tab.renderEntityPreview())
 	        	    	{
 		        	    	stack.pushPose();
 		        	    	Vec3 pos = Vec3.atBottomCenterOf(blockPos.above());
 		        	    	stack.translate(pos.x - camPos.x, pos.y - camPos.y, pos.z - camPos.z);
-		        	    	if(TAMBSClientData.SELECTED_TYPE != null)
+		        	    	MobCell cell = TAMBSClientData.SELECTED_CELL;
+		        	    	if(cell != null)
 		        	    	{
-		        	    		Entity entity = TAMBSClientData.SELECTED_TYPE.create(minecraft.level);
+		        	    		Entity entity = cell.entity.getType().create(minecraft.level);
+		        	    		if(cell.tag != null)
+		        	    		{
+		        	    			entity.load(cell.tag);
+		        	    		}
 		        	    		EntityRenderer<? super Entity> renderer = entityRenderDispatcher.getRenderer(entity);
 		        				Direction direction = TAMBSUtil.getNearest(minecraft.player.position(), pos);
 		        	    		

@@ -39,7 +39,12 @@ public class MobSelectTab extends TAMBSTab
 	
 	public MobSelectTab(TAMBSScreen screen)
 	{
-		super(0, screen.height - (TAMBSScreen.TAB_HEIGHT + 45), screen.width, screen.height, Component.translatable("tambs.tab.mob_select"));
+		this(screen, Component.translatable("tambs.tab.mob_select"));
+	}
+	
+	public MobSelectTab(TAMBSScreen screen, Component message)
+	{
+		super(0, screen.height - (TAMBSScreen.TAB_HEIGHT + 45), screen.width, screen.height, message);
 		this.init(screen);
 	}
 	
@@ -88,6 +93,12 @@ public class MobSelectTab extends TAMBSTab
 	}
 	
 	@Override
+	public boolean renderEntityPreview()
+	{
+		return true;
+	}
+	
+	@Override
 	public boolean renderBlockHighlight()
 	{
 		return true;
@@ -106,6 +117,7 @@ public class MobSelectTab extends TAMBSTab
 	@Override
 	public void visitChildren(Consumer<AbstractWidget> pConsumer) 
 	{
+	    this.updateCell(MobCell::isBookmark);
         for(MobCell cell : this.all)
         {
         	pConsumer.accept(cell);
@@ -191,7 +203,7 @@ public class MobSelectTab extends TAMBSTab
 	    });
     }
     
-    private void updateCell(Predicate<MobCell> predicate) 
+    public void updateCell(Predicate<MobCell> predicate) 
     {
         int index = 0;
         for(MobCell cell : this.all)

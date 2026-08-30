@@ -64,6 +64,11 @@ public class TAMBSTab extends AbstractWidget implements Tab
 		
 	}
 
+	public boolean renderEntityPreview()
+	{
+		return false;
+	}
+	
 	public boolean renderBlockHighlight() 
 	{
 		return false;

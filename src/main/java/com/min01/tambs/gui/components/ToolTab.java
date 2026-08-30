@@ -47,7 +47,7 @@ public class ToolTab extends TAMBSTab
 		{
 			if(this.teleportBox.selected())
 			{
-		        HitResult hitResult = TAMBSClientUtil.raycastFromMouse(TAMBSClientData.INSTANCE.mouseDistance(), true);
+		        HitResult hitResult = TAMBSClientUtil.raycastFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
 				if(pButton == 0)
 				{
 		            if(hitResult instanceof EntityHitResult entityHit)
