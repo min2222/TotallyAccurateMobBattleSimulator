@@ -8,7 +8,8 @@
 		"LevelInvoker",
 		"MixinAbilities",
 		"MixinMinecraftServer",
-		"MixinEntity"
+		"MixinEntity",
+		"MixinLevel"
 	],
 	"client": [
 		"MixinKeyboardInput",

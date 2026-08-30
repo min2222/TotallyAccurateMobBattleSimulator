@@ -14,6 +14,7 @@ import com.min01.tambs.gui.components.TextOnlyButton;
 import com.min01.tambs.gui.components.ToolTab;
 import com.min01.tambs.misc.TAMBSKeyMappings;
 import com.min01.tambs.util.TAMBSClientUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -64,20 +65,25 @@ public class TAMBSScreen extends Screen
 			FrameLayout.centerInRectangle(this.collapseButton, 0, this.isCollapsed ? this.height - 20 : this.height - (TAB_HEIGHT + 65), this.font.width(COLLAPSE) + 10, 20);
 			this.tabNavigationBar.visitWidgets(widget -> widget.active = widget.visible = !this.isCollapsed);
             this.minecraft.player.setDeltaMovement(Vec3.ZERO);
-    		if(this.getCurrentTab() instanceof TAMBSTab tab)
+    		this.tabNavigationBar.tabs.forEach(t -> 
     		{
-    			tab.save(TAMBSClientData.INSTANCE);
-    	    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
-    		}
+    			if(t instanceof TAMBSTab tab)
+    			{
+    				tab.save(TAMBSClientData.INSTANCE);
+    		    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
+    			}
+    		});
         }).bounds(0, 0, this.font.width(COLLAPSE) + 10, 20));
 		this.addRenderableWidget(this.collapseButton);
-		this.tabNavigationBar.selectTab(0, false);
 		this.repositionElements();
-		
-		if(this.getCurrentTab() instanceof TAMBSTab tab)
+		this.tabNavigationBar.selectTab(0, false);
+		this.tabNavigationBar.tabs.forEach(t -> 
 		{
-			tab.load(TAMBSClientData.INSTANCE);
-		}
+			if(t instanceof TAMBSTab tab)
+			{
+				tab.load(TAMBSClientData.INSTANCE);
+			}
+		});
 	}
 
 	@Override
@@ -92,11 +98,6 @@ public class TAMBSScreen extends Screen
 			this.tabNavigationBar.visitWidgets(widget -> widget.active = widget.visible = !this.isCollapsed);
 			ScreenRectangle rectangle = new ScreenRectangle(0, this.height - (TAB_HEIGHT + 45), this.width, this.height);
 			this.tabManager.setTabArea(rectangle);
-    		if(this.getCurrentTab() instanceof TAMBSTab tab)
-    		{
-    			tab.save(TAMBSClientData.INSTANCE);
-    	    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
-    		}
 		}
 	}
 
@@ -114,10 +115,18 @@ public class TAMBSScreen extends Screen
 		{
 			this.minecraft.level.guardEntityTick(t -> this.minecraft.level.tickNonPassenger(t), this.minecraft.player);
 		}
+		else
+		{
+			TAMBSClientData.clear();
+		}
 		if(this.isCollapsed && TAMBSClientUtil.isCameraMoving())
 		{
 			this.minecraft.mouseHandler.grabMouse();
 			this.minecraft.mouseHandler.turnPlayer();
+		}
+		if(this.getCurrentTab() instanceof TAMBSTab tab)
+		{
+			tab.tick();
 		}
 	}
 	
@@ -125,16 +134,24 @@ public class TAMBSScreen extends Screen
 	public void onClose() 
 	{
 		super.onClose();
-		if(this.getCurrentTab() instanceof TAMBSTab tab)
+		this.tabNavigationBar.tabs.forEach(t -> 
 		{
-			tab.save(TAMBSClientData.INSTANCE);
-	    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
-		}
+			if(t instanceof TAMBSTab tab)
+			{
+				tab.save(TAMBSClientData.INSTANCE);
+		    	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
+			}
+		});
 	}
 	
 	@Override
 	public boolean keyPressed(int pKeyCode, int pScanCode, int pModifiers)
 	{
+		if(pKeyCode == InputConstants.KEY_F1)
+		{
+			this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
+			return false;
+		}
 		if(this.isCollapsed)
 		{
 			if(pKeyCode == TAMBSKeyMappings.PLAY.getKey().getValue())
@@ -157,6 +174,11 @@ public class TAMBSScreen extends Screen
 	@Override
 	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick)
 	{
+		if(this.minecraft.options.hideGui)
+		{
+			return;
+		}
+		
 		if(!this.isCollapsed)
 		{
 			this.renderDirtBackground(pGuiGraphics);
@@ -234,18 +256,9 @@ public class TAMBSScreen extends Screen
 	}
 	
 	@Override
-	public void mouseMoved(double pMouseX, double pMouseY) 
-	{
-		if(this.getCurrentTab() instanceof TAMBSTab tab)
-		{
-			tab.mouseMoved(pMouseX, pMouseY);
-		}
-		super.mouseMoved(pMouseX, pMouseY);
-	}
-
-	@Override
 	public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) 
 	{
+		TAMBSClientData.release();
 		this.minecraft.mouseHandler.releaseMouse();
 		return super.mouseReleased(pMouseX, pMouseY, pButton);
 	}

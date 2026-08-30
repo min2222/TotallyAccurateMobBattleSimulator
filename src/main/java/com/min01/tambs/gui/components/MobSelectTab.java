@@ -76,6 +76,16 @@ public class MobSelectTab extends TAMBSTab
 	}
 	
 	@Override
+	public void tick()
+	{
+		super.tick();
+		if(!this.isActive())
+		{
+			TAMBSClientUtil.setHovered();
+		}
+	}
+	
+	@Override
 	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) 
 	{
 		if(this.isActive())
@@ -117,13 +127,20 @@ public class MobSelectTab extends TAMBSTab
 	@Override
 	public void visitChildren(Consumer<AbstractWidget> pConsumer) 
 	{
-	    this.updateCell(MobCell::isBookmark);
         for(MobCell cell : this.all)
         {
         	pConsumer.accept(cell);
         }
     	pConsumer.accept(this.searchBox);
     	pConsumer.accept(this.bookmarkButton);
+    	if(this.isBookmark)
+    	{
+    	    this.updateCell(MobCell::isBookmark);
+    	}
+    	else
+    	{
+    	    this.updateCell(t -> true);
+    	}
 		super.visitChildren(pConsumer);
 	}
 	

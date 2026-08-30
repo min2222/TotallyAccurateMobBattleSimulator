@@ -63,13 +63,13 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
         public String play_speed = "1.0";
         public String fly_speed = "1.0";
         public List<String> bookmarks = new ArrayList<>();
-        public FilterCategory overlay = new FilterCategory();
-        public FilterCategory mob_griefing = new FilterCategory();
-        public FilterCategory mob_kill = new FilterCategory();
+        public List<String> overlay = new ArrayList<>();
+        public List<String> mob_griefing = new ArrayList<>();
+        public List<String> mob_kill = new ArrayList<>();
         
-        public boolean isBookmarked(ResourceLocation name)
+        public boolean contains(List<String> list, ResourceLocation name)
         {
-        	return this.bookmarks.contains(name.toString());
+        	return list.contains(name.toString());
         }
         
         public void bookmark(ResourceLocation name, boolean remove)
@@ -82,35 +82,6 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
         	{
         		this.bookmarks.add(name.toString());
         	}
-        }
-    }
-
-    public static class FilterCategory 
-    {
-        public String mode = "blacklist";
-        public List<String> blacklist = new ArrayList<>();
-        public List<String> whitelist = new ArrayList<>();
-
-        public boolean filter(ResourceLocation location)
-        {
-        	if(this.mode.equals("whitelist") && !this.isWhitelisted(location))
-        	{
-        		return true;
-        	}
-        	if(this.mode.equals("blacklist") && this.isBlacklisted(location))
-        	{
-        		return true;
-        	}
-        	return false;
-        }
-        public boolean isBlacklisted(ResourceLocation location) 
-        {
-            return this.blacklist != null && this.blacklist.contains(location.toString());
-        }
-
-        public boolean isWhitelisted(ResourceLocation location)
-        {
-            return this.whitelist != null && this.whitelist.contains(location.toString());
         }
     }
 }

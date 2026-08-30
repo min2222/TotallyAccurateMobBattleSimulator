@@ -30,6 +30,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.AABB;
@@ -61,6 +62,27 @@ public class TAMBSClientUtil
 		Minecraft minecraft = Minecraft.getInstance();
 		Window window = minecraft.getWindow();
 		return InputConstants.isKeyDown(window.getWindow(), key.getKey().getValue());
+	}
+	
+	public static void setHovered()
+	{
+        HitResult hitResult = TAMBSClientUtil.raycastFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
+        if(hitResult instanceof EntityHitResult entityHit && TAMBSClientData.isPaused())
+        {
+        	Entity entity =  entityHit.getEntity();
+        	if(entity instanceof LivingEntity living)
+        	{
+            	if(TAMBSClientData.LAST_HOVERED == null || !living.blockPosition().equals(TAMBSClientData.LAST_HOVERED))
+            	{
+        			TAMBSClientData.HOVERED_UUID = living.getUUID();
+	            	TAMBSClientData.LAST_HOVERED = living.blockPosition();
+            	}
+        	}
+        }
+        else
+        {
+        	TAMBSClientData.HOVERED_UUID = null;
+        }
 	}
 	
 	public static void placeOrRemoveMob(int button)

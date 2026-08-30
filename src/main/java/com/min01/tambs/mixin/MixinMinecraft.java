@@ -43,6 +43,10 @@ public class MixinMinecraft
 			{
 				return true;
 			}
+			if(TAMBSClientData.HOVERED_UUID != null && TAMBSClientData.HOVERED_UUID == pEntity.getUUID())
+			{
+				return true;
+			}
 		}
 		return original;
 	}

@@ -40,6 +40,7 @@ import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
 import net.minecraftforge.client.gui.overlay.NamedGuiOverlay;
+import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -66,6 +67,7 @@ public class ClientEventHandlerForge
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event)
     {
+    	TAMBSClientData.PAUSED = true;
     	TAMBSClientData.clear();
     	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
     }
@@ -74,16 +76,20 @@ public class ClientEventHandlerForge
 	public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Pre event)
 	{
 		NamedGuiOverlay overlay = event.getOverlay();
-		if(TAMBSClientData.INSTANCE.overlay.filter(overlay.id()))
+		if(TAMBSClientUtil.isMobBattleMode())
 		{
-			event.setCanceled(true);
+			if(TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.overlay, overlay.id()) || overlay == VanillaGuiOverlay.HOTBAR.type())
+			{
+				event.setCanceled(true);
+			}
 		}
 	}
 	
 	@SubscribeEvent
 	public static void onRenderHand(RenderHandEvent event)
 	{
-		if(TAMBSClientUtil.isMobBattleMode())
+		Minecraft minecraft = Minecraft.getInstance();
+		if(minecraft.screen instanceof TAMBSScreen)
 		{
 			event.setCanceled(true);
 		}

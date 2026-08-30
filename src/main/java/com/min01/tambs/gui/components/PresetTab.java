@@ -24,10 +24,12 @@ public class PresetTab extends MobSelectTab
 {
 	protected TextOnlyButton addButton;
 	protected boolean isAdd;
+	protected TAMBSScreen screen;
 	
 	public PresetTab(TAMBSScreen screen)
 	{
 		super(screen, Component.translatable("tambs.tab.preset"));
+		this.screen = screen;
 	}
 	
 	@Override
@@ -78,6 +80,16 @@ public class PresetTab extends MobSelectTab
 	}
 	
 	@Override
+	public void tick()
+	{
+		super.tick();
+		if(!this.isActive())
+		{
+			TAMBSClientUtil.setHovered();
+		}
+	}
+	
+	@Override
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton)
 	{
 		if(!this.isActive() && this.isAdd)
@@ -94,7 +106,7 @@ public class PresetTab extends MobSelectTab
 		            	{
 		            		//FIXME unable to click cell until switch tab;
 		            		//FIXME bookmark conflict with normal mob select tab;
-		            		//FIXME turn on bookmark filter and expand tab again cause overlap;
+		            		//TODO save to json with nbt tag;
 		                    MobCell cell = new MobCell(0, this.height - TAMBSScreen.TAB_HEIGHT, this.width / COLUMN_COUNT, CELL_HEIGHT, living, TAMBSUtil.saveEntity(living));
 		                    this.all.add(cell);
 		                    this.scrollAmount = 0;
@@ -108,16 +120,6 @@ public class PresetTab extends MobSelectTab
             return false;
 		}
 		return super.mouseClicked(pMouseX, pMouseY, pButton);
-	}
-	
-	@Override
-	public void mouseMoved(double pMouseX, double pMouseY)
-	{
-		if(!this.isActive())
-		{
-			TAMBSClientData.LAST_PLACED = null;
-		}
-		super.mouseMoved(pMouseX, pMouseY);
 	}
 	
 	@Override

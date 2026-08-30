@@ -13,8 +13,10 @@ public class TAMBSClientData
 	public static boolean PAUSED = true;
 
 	public static BlockPos LAST_PLACED;
+	public static BlockPos LAST_HOVERED;
 	public static MobCell SELECTED_CELL;
 	public static UUID SELECTED_UUID;
+	public static UUID HOVERED_UUID;
 	
 	public static void selectCell(MobCell cell)
 	{
@@ -29,14 +31,16 @@ public class TAMBSClientData
 	public static void release()
 	{
 		LAST_PLACED = null;
+		LAST_HOVERED = null;
 	}
 	
 	public static void clear()
 	{
-		PAUSED = true;
 		LAST_PLACED = null;
+		LAST_HOVERED = null;
 		SELECTED_CELL = null;
 		SELECTED_UUID = null;
+		HOVERED_UUID = null;
 	}
 	
 	public static void pause(boolean paused)

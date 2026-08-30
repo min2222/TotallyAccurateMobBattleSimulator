@@ -26,6 +26,7 @@ import net.minecraft.world.phys.Vec3;
 public class ToolTab extends TAMBSTab
 {
 	private Checkbox teleportBox;
+	//TODO team setting tool;
 	
 	public ToolTab(TAMBSScreen screen)
 	{
@@ -41,9 +42,19 @@ public class ToolTab extends TAMBSTab
 	}
 	
 	@Override
+	public void tick()
+	{
+		super.tick();
+		if(!this.isActive() && this.teleportBox.selected())
+		{
+			TAMBSClientUtil.setHovered();
+		}
+	}
+	
+	@Override
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) 
 	{
-		if(!this.isActive())
+		if(!this.isActive() && TAMBSClientData.isPaused())
 		{
 			if(this.teleportBox.selected())
 			{
@@ -76,24 +87,13 @@ public class ToolTab extends TAMBSTab
 				}
 				else if(pButton == 1)
 				{
-					TAMBSClientData.SELECTED_UUID = null;
-					TAMBSClientData.LAST_PLACED = null;
+					TAMBSClientData.selectUUID(null);
 	            	Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
 				}
 			}
 			return false;
 		}
 		return super.mouseClicked(pMouseX, pMouseY, pButton);
-	}
-	
-	@Override
-	public void mouseMoved(double pMouseX, double pMouseY)
-	{
-		if(!this.isActive())
-		{
-			TAMBSClientData.LAST_PLACED = null;
-		}
-		super.mouseMoved(pMouseX, pMouseY);
 	}
 	
 	@Override
@@ -104,16 +104,6 @@ public class ToolTab extends TAMBSTab
 			
 		}
 		return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
-	}
-	
-	@Override
-	public boolean mouseReleased(double pMouseX, double pMouseY, int pButton) 
-	{
-		if(this.isActive())
-		{
-			
-		}
-		return super.mouseReleased(pMouseX, pMouseY, pButton);
 	}
 	
 	@Override

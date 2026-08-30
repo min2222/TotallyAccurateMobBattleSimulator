@@ -21,7 +21,7 @@ public class MixinEntity
 		original.call();
 		if(!(entity instanceof Player))
 		{
-			if(TAMBSClientUtil.isMobBattleMode() && TAMBSClientData.INSTANCE.mob_kill.filter(ForgeRegistries.ENTITY_TYPES.getKey(entity.getType())))
+			if(TAMBSClientUtil.isMobBattleMode() && TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.mob_kill, ForgeRegistries.ENTITY_TYPES.getKey(entity.getType())))
 			{
 				entity.kill();
 			}

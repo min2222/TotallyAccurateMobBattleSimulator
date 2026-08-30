@@ -19,6 +19,8 @@ public class OptionTab extends TAMBSTab
 	private EditBox playSpeedBox;
 	private EditBox flySpeedBox;
 	
+	//TODO mob griefing, mob kill, overlay;
+	
 	public OptionTab(TAMBSScreen screen)
 	{
 		super(screen.width / 4, screen.height - (TAMBSScreen.TAB_HEIGHT + 45), screen.width, screen.height, Component.translatable("tambs.tab.options"));

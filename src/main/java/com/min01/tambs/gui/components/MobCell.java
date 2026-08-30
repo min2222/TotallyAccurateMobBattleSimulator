@@ -84,7 +84,7 @@ public class MobCell extends AbstractWidget
 	public void load(Options options)
 	{
 		ResourceLocation location = ForgeRegistries.ENTITY_TYPES.getKey(this.entity.getType());
-		if(options.isBookmarked(location))
+		if(options.contains(options.bookmarks, location))
 		{
 			this.isBookmark = true;
     		this.bookmarkButton.setMessage(Component.literal("★").withStyle(ChatFormatting.GOLD));
