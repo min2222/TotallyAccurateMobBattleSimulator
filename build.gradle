@@ -149,6 +149,7 @@ dependencies {
         jarJar.ranged(it, "[0.5.4,)")
     }
 	annotationProcessor "org.spongepowered:mixin:0.8.7:processor"
+	compileOnly fg.deobf("curse.maven:geckolib-388172:8285794")
 
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime

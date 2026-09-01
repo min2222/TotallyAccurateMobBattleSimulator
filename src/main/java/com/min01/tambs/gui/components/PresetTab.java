@@ -6,6 +6,7 @@ import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.client.TAMBSReloadListener.Options;
 import com.min01.tambs.client.TAMBSReloadListener.Preset;
 import com.min01.tambs.gui.screen.TAMBSScreen;
+import com.min01.tambs.gui.tab.MobSelectTab;
 import com.min01.tambs.util.TAMBSClientUtil;
 import com.min01.tambs.util.TAMBSUtil;
 

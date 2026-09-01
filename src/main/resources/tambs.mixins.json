@@ -17,7 +17,8 @@
 		"MixinCamera",
 		"MixinMinecraft",
 		"MixinTimer",
-		"MixinGui"
+		"MixinGui",
+		"compat.MixinAnimationProcessor"
 	],
 	"server": [
 	],

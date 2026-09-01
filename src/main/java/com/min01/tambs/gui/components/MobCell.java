@@ -29,6 +29,7 @@ public class MobCell extends AbstractWidget
     protected boolean isBookmark;
     public final Entity entity;
     public final CompoundTag tag;
+    public boolean error;
     
     public MobCell(int pX, int pY, int pWidth, int pHeight, ResourceLocation name) 
     {
@@ -38,19 +39,19 @@ public class MobCell extends AbstractWidget
     public MobCell(int pX, int pY, int pWidth, int pHeight, ResourceLocation name, CompoundTag tag) 
     {
         super(pX, pY, pWidth, pHeight, Component.empty());
-        this.tag = tag;
         this.entity = ForgeRegistries.ENTITY_TYPES.getValue(name).create(Minecraft.getInstance().level);
-        if(!tag.isEmpty())
-        {
-        	try
-        	{
+        this.tag = tag;
+    	try
+    	{
+            if(!tag.isEmpty())
+            {
         		this.entity.load(tag);
-        	}
-        	catch(Throwable e)
-        	{
-        		
-        	}
-        }
+            }
+    	}
+    	catch(Throwable e)
+    	{
+    		
+    	}
         this.bookmarkButton = new TextOnlyButton(Button.builder(Component.literal("☆"), pButton -> 
         {
         	if(pButton.isActive())
@@ -72,26 +73,35 @@ public class MobCell extends AbstractWidget
     @Override
 	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick)
     {
-    	if(this.isActive())
+    	if(this.error)
+    		return;
+    	try
     	{
-            this.renderBorder(pGuiGraphics, this.getX(), this.getY(), this.getWidth(), this.getHeight());
-            this.bookmarkButton.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-            
-            PoseStack stack = pGuiGraphics.pose();
-            stack.pushPose();
-            stack.translate(0.0F, 10.0F, 0.0F);
-            pGuiGraphics.enableScissor(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height);
-            if(this.entity instanceof LivingEntity living)
-            {
-            	InventoryScreen.renderEntityInInventoryFollowsAngle(pGuiGraphics, this.getX() + (this.width / 2), this.getY() + this.height - 15, (int) (30 - this.entity.getBoundingBox().getSize()), 0, 0, living);
-            }
-            pGuiGraphics.disableScissor();
-            stack.popPose();
-            
-            if(this.isHovered)
-            {
-                pGuiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x44FFFFFF);
-            }
+        	if(this.isActive())
+        	{
+                this.renderBorder(pGuiGraphics, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+                this.bookmarkButton.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+                
+                PoseStack stack = pGuiGraphics.pose();
+                stack.pushPose();
+                stack.translate(0.0F, 10.0F, 0.0F);
+                pGuiGraphics.enableScissor(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height);
+                if(this.entity instanceof LivingEntity living)
+                {
+                	InventoryScreen.renderEntityInInventoryFollowsAngle(pGuiGraphics, this.getX() + (this.width / 2), this.getY() + this.height - 15, (int) (30 - this.entity.getBoundingBox().getSize()), 0, 0, living);
+                }
+                pGuiGraphics.disableScissor();
+                stack.popPose();
+                
+                if(this.isHovered)
+                {
+                    pGuiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x44FFFFFF);
+                }
+        	}
+    	}
+    	catch(Throwable e)
+    	{
+    		this.error = true;
     	}
     }
     

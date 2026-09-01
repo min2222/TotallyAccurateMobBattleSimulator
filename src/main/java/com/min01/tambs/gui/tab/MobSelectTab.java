@@ -1,4 +1,4 @@
-package com.min01.tambs.gui.components;
+package com.min01.tambs.gui.tab;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.min01.tambs.client.TAMBSReloadListener.Options;
+import com.min01.tambs.gui.components.MobCell;
+import com.min01.tambs.gui.components.TextOnlyButton;
 import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.util.TAMBSClientUtil;
 

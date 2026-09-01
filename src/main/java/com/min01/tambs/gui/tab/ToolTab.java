@@ -1,10 +1,14 @@
-package com.min01.tambs.gui.components;
+package com.min01.tambs.gui.tab;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.client.TAMBSReloadListener.Options;
+import com.min01.tambs.gui.components.CheckEditBox;
+import com.min01.tambs.gui.components.DragBox;
+import com.min01.tambs.gui.components.PairCheckbox;
+import com.min01.tambs.gui.components.SuggestionEditBox;
 import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.network.AddTeamPacket;
 import com.min01.tambs.network.MoveMobPacket;

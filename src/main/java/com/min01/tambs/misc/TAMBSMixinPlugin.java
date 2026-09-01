@@ -9,6 +9,8 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import com.llamalad7.mixinextras.MixinExtrasBootstrap;
 
+import net.minecraftforge.fml.loading.LoadingModList;
+
 public class TAMBSMixinPlugin implements IMixinConfigPlugin
 {
     @Override
@@ -26,6 +28,10 @@ public class TAMBSMixinPlugin implements IMixinConfigPlugin
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) 
 	{
+		if(mixinClassName.equals("MixinAnimationProcessor"))
+		{
+			return LoadingModList.get().getModFileById("geckolib") != null;
+		}
 		return true;
 	}
 

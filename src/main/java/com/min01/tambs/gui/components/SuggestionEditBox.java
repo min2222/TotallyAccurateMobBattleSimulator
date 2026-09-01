@@ -170,11 +170,6 @@ public class SuggestionEditBox extends EditBox
                 this.cycle(1);
                 return true;
             }
-            if(keyCode == GLFW.GLFW_KEY_ENTER) 
-            {
-                this.useSuggestion();
-                return true;
-            }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }

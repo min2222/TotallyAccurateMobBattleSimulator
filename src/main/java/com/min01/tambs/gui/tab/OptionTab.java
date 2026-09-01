@@ -1,4 +1,4 @@
-package com.min01.tambs.gui.components;
+package com.min01.tambs.gui.tab;
 
 import java.math.BigDecimal;
 import java.util.function.Consumer;
