@@ -7,7 +7,9 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.min01.tambs.util.TAMBSClientUtil;
+import com.min01.tambs.gui.screen.TAMBSScreen;
+
+import net.minecraft.client.Minecraft;
 
 @Mixin(targets = "software.bernie.geckolib.core.animation.AnimationProcessor", remap = false)
 public class MixinAnimationProcessor 
@@ -16,7 +18,8 @@ public class MixinAnimationProcessor
 	@WrapOperation(method = "buildAnimationQueue", at = @At(value = "INVOKE", target = "Ljava/io/PrintStream;println(Ljava/lang/String;)V"))
 	private void tambs$buildAnimationQueue(PrintStream instance, String x, Operation<Void> original)
 	{
-		if(TAMBSClientUtil.isMobBattleMode())
+		Minecraft minecraft = Minecraft.getInstance();
+		if(minecraft.screen instanceof TAMBSScreen)
 		{
 			return;
 		}
