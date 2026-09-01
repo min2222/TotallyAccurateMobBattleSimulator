@@ -32,15 +32,25 @@ public class MobCell extends AbstractWidget
     
     public MobCell(int pX, int pY, int pWidth, int pHeight, ResourceLocation name) 
     {
-    	this(pX, pY, pWidth, pHeight, name, null);
+    	this(pX, pY, pWidth, pHeight, name, new CompoundTag());
     }
     
     public MobCell(int pX, int pY, int pWidth, int pHeight, ResourceLocation name, CompoundTag tag) 
     {
         super(pX, pY, pWidth, pHeight, Component.empty());
-        this.tag = tag == null ? new CompoundTag() : tag;
+        this.tag = tag;
         this.entity = ForgeRegistries.ENTITY_TYPES.getValue(name).create(Minecraft.getInstance().level);
-        this.entity.load(this.tag);
+        if(!tag.isEmpty())
+        {
+        	try
+        	{
+        		this.entity.load(tag);
+        	}
+        	catch(Throwable e)
+        	{
+        		
+        	}
+        }
         this.bookmarkButton = new TextOnlyButton(Button.builder(Component.literal("☆"), pButton -> 
         {
         	if(pButton.isActive())
