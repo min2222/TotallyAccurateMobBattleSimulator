@@ -1,12 +1,14 @@
-package com.min01.tambs.gui.components;
+package com.min01.tambs.gui.tab;
 
 import java.util.function.Consumer;
 
 import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.client.TAMBSReloadListener.Options;
 import com.min01.tambs.client.TAMBSReloadListener.Preset;
+import com.min01.tambs.gui.components.MobCell;
+import com.min01.tambs.gui.components.PresetCell;
+import com.min01.tambs.gui.components.TextOnlyButton;
 import com.min01.tambs.gui.screen.TAMBSScreen;
-import com.min01.tambs.gui.tab.MobSelectTab;
 import com.min01.tambs.util.TAMBSClientUtil;
 import com.min01.tambs.util.TAMBSUtil;
 

@@ -11,9 +11,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTooltipPositioner;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -52,6 +55,8 @@ public class MobCell extends AbstractWidget
     	{
     		
     	}
+		this.setTooltip(Tooltip.create(this.entity.getDisplayName()));
+        this.setTooltipDelay(10);
         this.bookmarkButton = new TextOnlyButton(Button.builder(Component.literal("☆"), pButton -> 
         {
         	if(pButton.isActive())
@@ -69,12 +74,26 @@ public class MobCell extends AbstractWidget
         	}
         }).bounds(this.getX() + 1, this.getY() + 1, 13, 13));
     }
+    
+    @Override
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) 
+    {
+    	super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+    }
+    
+    @Override
+    protected ClientTooltipPositioner createTooltipPositioner() 
+    {
+    	return new BelowOrAboveWidgetTooltipPositioner(this);
+    }
 
     @Override
 	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick)
     {
     	if(this.error)
+    	{
     		return;
+    	}
     	try
     	{
         	if(this.isActive())

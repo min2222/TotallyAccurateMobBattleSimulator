@@ -5,10 +5,10 @@ import java.util.List;
 import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.client.TAMBSReloadListener;
 import com.min01.tambs.gui.components.MobCell;
-import com.min01.tambs.gui.components.PresetTab;
 import com.min01.tambs.gui.components.TextOnlyButton;
 import com.min01.tambs.gui.tab.MobSelectTab;
 import com.min01.tambs.gui.tab.OptionTab;
+import com.min01.tambs.gui.tab.PresetTab;
 import com.min01.tambs.gui.tab.TAMBSTab;
 import com.min01.tambs.gui.tab.TAMBSTabNavigationBar;
 import com.min01.tambs.gui.tab.ToolTab;
@@ -210,6 +210,10 @@ public class TAMBSScreen extends Screen
 		{
 			if(renderable instanceof MobCell cell)
 			{
+		        if(cell.getY() > this.height || cell.getY() + cell.getHeight() < this.height - TAMBSScreen.TAB_HEIGHT)
+		        {
+		        	continue;
+		        }
 	            pGuiGraphics.enableScissor(0, this.height - TAMBSScreen.TAB_HEIGHT, this.width, this.height);
 				cell.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 				pGuiGraphics.disableScissor();

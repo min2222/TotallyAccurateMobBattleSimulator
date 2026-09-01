@@ -14,7 +14,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 public class PresetCell extends MobCell
 {
 	protected TextOnlyButton deleteButton;
-	protected boolean isDelete;
+	public boolean isDelete;
     
 	public PresetCell(int pX, int pY, int pWidth, int pHeight, Preset preset) 
 	{

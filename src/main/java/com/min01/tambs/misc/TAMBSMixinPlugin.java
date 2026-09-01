@@ -28,7 +28,7 @@ public class TAMBSMixinPlugin implements IMixinConfigPlugin
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) 
 	{
-		if(mixinClassName.equals("MixinAnimationProcessor"))
+		if(mixinClassName.contains("geckolib"))
 		{
 			return LoadingModList.get().getModFileById("geckolib") != null;
 		}

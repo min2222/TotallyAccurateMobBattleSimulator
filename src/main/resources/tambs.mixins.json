@@ -18,7 +18,7 @@
 		"MixinMinecraft",
 		"MixinTimer",
 		"MixinGui",
-		"compat.MixinAnimationProcessor"
+		"compat.geckolib.MixinAnimationProcessor"
 	],
 	"server": [
 	],

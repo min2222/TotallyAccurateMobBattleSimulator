@@ -1,4 +1,4 @@
-package com.min01.tambs.mixin.compat;
+package com.min01.tambs.mixin.compat.geckolib;
 
 import java.io.PrintStream;
 
