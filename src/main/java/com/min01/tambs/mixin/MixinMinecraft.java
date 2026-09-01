@@ -16,7 +16,7 @@ public class MixinMinecraft
 	@ModifyReturnValue(method = "shouldEntityAppearGlowing", at = @At("RETURN"))
 	private boolean tambs$shouldEntityAppearGlowing(boolean original, Entity pEntity)
 	{
-		if(TAMBSClientUtil.isMobBattleMode())
+		if(TAMBSClientUtil.isMobBattleMode() && TAMBSClientData.isPaused())
 		{
 			if(pEntity.getTeam() != null)
 			{

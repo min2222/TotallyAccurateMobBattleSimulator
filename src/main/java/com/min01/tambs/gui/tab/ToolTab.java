@@ -77,7 +77,12 @@ public class ToolTab extends TAMBSTab
 		});
 		this.teamColor.setResponder(t ->
 		{
-			this.dragBox.setColor(this.getColor(t).getColor());
+			Integer color = this.getColor(t).getColor();
+			if(color == null)
+			{
+				color = ChatFormatting.WHITE.getColor();
+			}
+			this.dragBox.setColor(color);
 		});
 		this.screen = screen;
 	}
@@ -85,7 +90,7 @@ public class ToolTab extends TAMBSTab
 	public ChatFormatting getColor(String name)
 	{
 		ChatFormatting color = ChatFormatting.getByName(name);
-		return color != null && color.getColor() != null ? color : ChatFormatting.BLUE;
+		return color != null && color.getColor() != null ? color : ChatFormatting.RESET;
 	}
 	
 	@Override
