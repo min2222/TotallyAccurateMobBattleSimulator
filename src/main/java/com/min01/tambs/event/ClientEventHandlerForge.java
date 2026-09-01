@@ -76,12 +76,9 @@ public class ClientEventHandlerForge
 	public static void onRenderGuiOverlay(RenderGuiOverlayEvent.Pre event)
 	{
 		NamedGuiOverlay overlay = event.getOverlay();
-		if(TAMBSClientUtil.isMobBattleMode())
+		if(TAMBSClientUtil.isMobBattleMode() && overlay == VanillaGuiOverlay.HOTBAR.type())
 		{
-			if(TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.overlay, overlay.id()) || overlay == VanillaGuiOverlay.HOTBAR.type())
-			{
-				event.setCanceled(true);
-			}
+			event.setCanceled(true);
 		}
 	}
 	
@@ -109,7 +106,7 @@ public class ClientEventHandlerForge
 	    {
 	    	if(minecraft.screen instanceof TAMBSScreen screen && screen.getCurrentTab() instanceof TAMBSTab tab)
 	    	{
-		        HitResult hitResult = TAMBSClientUtil.raycastBlockFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance));
+		        HitResult hitResult = TAMBSClientUtil.raycastBlock(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance));
 		        if(hitResult instanceof BlockHitResult blockHit) 
 		        {
 		            BlockPos blockPos = blockHit.getBlockPos();

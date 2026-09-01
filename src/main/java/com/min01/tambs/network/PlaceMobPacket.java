@@ -57,7 +57,7 @@ public class PlaceMobPacket
 			{
 				ForgeEventFactory.onFinalizeSpawn(mob, (ServerLevelAccessor) sender.level, sender.level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.SPAWN_EGG, null, null);
 			}
-			if(message.tag != null)
+			if(!message.tag.isEmpty())
 			{
 				entity.load(message.tag);
 			}

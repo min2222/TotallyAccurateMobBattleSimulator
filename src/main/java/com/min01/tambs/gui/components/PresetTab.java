@@ -3,6 +3,8 @@ package com.min01.tambs.gui.components;
 import java.util.function.Consumer;
 
 import com.min01.tambs.client.TAMBSClientData;
+import com.min01.tambs.client.TAMBSReloadListener.Options;
+import com.min01.tambs.client.TAMBSReloadListener.Preset;
 import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.util.TAMBSClientUtil;
 import com.min01.tambs.util.TAMBSUtil;
@@ -15,10 +17,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class PresetTab extends MobSelectTab
 {
@@ -85,8 +85,12 @@ public class PresetTab extends MobSelectTab
 		super.tick();
 		if(!this.isActive())
 		{
-			TAMBSClientUtil.setHovered();
+			TAMBSClientUtil.hover();
 		}
+ 		if(TAMBSClientData.SELECTED_CELL instanceof PresetCell preset && preset.isDelete)
+ 		{
+ 			TAMBSClientData.selectCell(null);
+ 		}
 	}
 	
 	@Override
@@ -96,30 +100,49 @@ public class PresetTab extends MobSelectTab
 		{
 			if(pButton == 0)
 			{
-		        HitResult hitResult = TAMBSClientUtil.raycastFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
-	            if(hitResult instanceof EntityHitResult entityHit)
-	            {
-	            	Entity entity =  entityHit.getEntity();
+				TAMBSClientUtil.raycast(entity -> 
+				{
 	            	if(entity instanceof LivingEntity living)
 	            	{
-		            	if(TAMBSClientData.LAST_PLACED == null || !living.blockPosition().equals(TAMBSClientData.LAST_PLACED))
-		            	{
-		            		//FIXME unable to click cell until switch tab;
-		            		//FIXME bookmark conflict with normal mob select tab;
-		            		//TODO save to json with nbt tag;
-		                    MobCell cell = new MobCell(0, this.height - TAMBSScreen.TAB_HEIGHT, this.width / COLUMN_COUNT, CELL_HEIGHT, living, TAMBSUtil.saveEntity(living));
-		                    this.all.add(cell);
-		                    this.scrollAmount = 0;
-		                    this.updateCell(t -> true);
-			            	Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
-			            	TAMBSClientData.LAST_PLACED = living.blockPosition();
-		            	}
+	            		PresetCell cell = new PresetCell(0, this.height - TAMBSScreen.TAB_HEIGHT, this.width / COLUMN_COUNT, CELL_HEIGHT, ForgeRegistries.ENTITY_TYPES.getKey(living.getType()), TAMBSUtil.saveEntity(living));
+	            		cell.visible = !this.screen.isCollapsed();
+	            		cell.active = !this.screen.isCollapsed();
+	            		this.all.add(cell);
+	            		this.screen.refresh();
+	                    this.scrollAmount = 0;
+	                    this.updateCell(t -> true);
+	                	Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
+	                	TAMBSClientData.LAST_PLACED = living.blockPosition();
 	            	}
-	            }
+				}, t -> {});
 			}
             return false;
 		}
 		return super.mouseClicked(pMouseX, pMouseY, pButton);
+	}
+	
+	@Override
+	public void load(Options options) 
+	{
+		for(Preset preset : options.presets)
+		{
+    		PresetCell cell = new PresetCell(0, this.height - TAMBSScreen.TAB_HEIGHT, this.width / COLUMN_COUNT, CELL_HEIGHT, preset);
+            this.all.add(cell);
+		}
+	}
+	
+	@Override
+	public void save(Options options) 
+	{
+		options.presets.clear();
+		this.all.removeIf(t -> t instanceof PresetCell preset && preset.isDelete);
+		for(MobCell cell : this.all)
+		{
+			if(cell instanceof PresetCell preset)
+			{
+				preset.save(options);
+			}
+		}
 	}
 	
 	@Override

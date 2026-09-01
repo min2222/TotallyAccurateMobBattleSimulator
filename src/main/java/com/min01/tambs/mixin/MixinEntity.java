@@ -8,7 +8,7 @@ import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.util.TAMBSClientUtil;
 
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraftforge.registries.ForgeRegistries;
 
 @Mixin(Entity.class)
@@ -19,11 +19,15 @@ public class MixinEntity
 	{
 		Entity entity = (Entity) (Object) this;
 		original.call();
-		if(!(entity instanceof Player))
+		if(TAMBSClientUtil.isMobBattleMode())
 		{
-			if(TAMBSClientUtil.isMobBattleMode() && TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.mob_kill, ForgeRegistries.ENTITY_TYPES.getKey(entity.getType())))
+			if(TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.mob_kill, ForgeRegistries.ENTITY_TYPES.getKey(entity.getType())))
 			{
 				entity.kill();
+			}
+			if(entity instanceof AbstractArrow arrow && arrow.inGround && TAMBSClientData.INSTANCE.clear_arrows)
+			{
+				arrow.discard();
 			}
 		}
 	}

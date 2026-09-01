@@ -54,6 +54,12 @@ public class TAMBSTab extends AbstractWidget implements Tab
 
 	}
 	
+	@Override
+	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton)
+	{
+	    return false;
+	}
+	
 	public void load(Options options)
 	{
 		

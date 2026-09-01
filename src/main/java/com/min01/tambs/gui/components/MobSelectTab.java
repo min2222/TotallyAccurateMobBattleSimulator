@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.min01.tambs.client.TAMBSReloadListener.Options;
 import com.min01.tambs.gui.screen.TAMBSScreen;
 import com.min01.tambs.util.TAMBSClientUtil;
 
@@ -81,7 +82,7 @@ public class MobSelectTab extends TAMBSTab
 		super.tick();
 		if(!this.isActive())
 		{
-			TAMBSClientUtil.setHovered();
+			TAMBSClientUtil.hover();
 		}
 	}
 	
@@ -99,6 +100,24 @@ public class MobSelectTab extends TAMBSTab
 			this.searchBox.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 			this.bookmarkButton.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 	    	pGuiGraphics.drawString(Minecraft.getInstance().font, Component.literal("🔎"), this.getX() + 5, this.getY() + 20, 0xFFFFFF);
+		}
+	}
+	
+	@Override
+	public void load(Options options) 
+	{
+		for(MobCell cell : this.all)
+		{
+			cell.load(options);
+		}
+	}
+	
+	@Override
+	public void save(Options options) 
+	{
+		for(MobCell cell : this.all)
+		{
+			cell.save(options);
 		}
 	}
 	
@@ -195,7 +214,7 @@ public class MobSelectTab extends TAMBSTab
             {
                 int column = index % COLUMN_COUNT;
                 int row = index / COLUMN_COUNT;
-                MobCell cell = new MobCell(column * width, this.height - TAMBSScreen.TAB_HEIGHT + (row * CELL_HEIGHT), width, CELL_HEIGHT, living);
+                MobCell cell = new MobCell(column * width, this.height - TAMBSScreen.TAB_HEIGHT + (row * CELL_HEIGHT), width, CELL_HEIGHT, ForgeRegistries.ENTITY_TYPES.getKey(living.getType()));
                 this.all.add(cell);
                 index++;
             }

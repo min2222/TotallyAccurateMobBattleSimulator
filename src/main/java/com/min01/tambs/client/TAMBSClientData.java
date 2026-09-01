@@ -10,6 +10,8 @@ import net.minecraft.core.BlockPos;
 public class TAMBSClientData 
 {
 	public static Options INSTANCE = new Options();
+
+	public static String SPEED = "1.0";
 	public static boolean PAUSED = true;
 
 	public static BlockPos LAST_PLACED;

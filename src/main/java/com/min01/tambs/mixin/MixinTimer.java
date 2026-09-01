@@ -16,10 +16,12 @@ public class MixinTimer
 	@ModifyExpressionValue(method = "advanceTime", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Timer;msPerTick:F", opcode = Opcodes.GETFIELD))
 	private float tambs$advanceTime(float original)
 	{
-		if(TAMBSClientUtil.isMobBattleMode())
+		if(TAMBSClientUtil.isMobBattleMode() && !TAMBSClientData.isPaused())
 		{
-			float tickrate = Float.valueOf(TAMBSClientData.INSTANCE.play_speed) * 20.0F;
-			return 1000.0F / tickrate;
+			String speed = TAMBSClientUtil.getTickrate();
+			float tickrate = Float.valueOf(speed) * 20.0F;
+			TAMBSClientData.SPEED = speed;
+			return Math.min(1000.0F / Math.max(tickrate, 0.0F), 1000.0F);
 		}
 		return original;
 	}

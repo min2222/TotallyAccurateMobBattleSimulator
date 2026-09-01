@@ -21,6 +21,10 @@ public class MixinGui
 		if(TAMBSClientUtil.isMobBattleMode())
 		{
 			pAtlasLocation = TAMBSClientData.isPaused() ? TAMBSClientUtil.PAUSED_ICON : TAMBSClientUtil.PLAY_ICON;
+			if(TAMBSClientData.INSTANCE.hideOnlyTambsUI && TAMBSClientUtil.isHidden())
+			{
+				return;
+			}
 		}
 		original.call(instance, pAtlasLocation, pX, pY, pUOffset, pVOffset, pUWidth, pVHeight);
 	}

@@ -20,6 +20,8 @@ public class TAMBSNetwork
 		CHANNEL.registerMessage(id++, PlaceMobPacket.class, PlaceMobPacket::write, PlaceMobPacket::read, PlaceMobPacket::handle);
 		CHANNEL.registerMessage(id++, RemoveMobPacket.class, RemoveMobPacket::write, RemoveMobPacket::read, RemoveMobPacket::handle);
 		CHANNEL.registerMessage(id++, MoveMobPacket.class, MoveMobPacket::write, MoveMobPacket::read, MoveMobPacket::handle);
+		CHANNEL.registerMessage(id++, AddTeamPacket.class, AddTeamPacket::write, AddTeamPacket::read, AddTeamPacket::handle);
+		CHANNEL.registerMessage(id++, RemoveTeamPacket.class, RemoveTeamPacket::write, RemoveTeamPacket::read, RemoveTeamPacket::handle);
 	}
 	
     public static <MSG> void sendToServer(MSG message) 

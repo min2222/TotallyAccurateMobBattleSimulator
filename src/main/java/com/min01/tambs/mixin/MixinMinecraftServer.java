@@ -15,10 +15,10 @@ public class MixinMinecraftServer
 	@ModifyExpressionValue(method = "runServer", at = @At(value = "CONSTANT", args = "longValue=50"))
 	private long tambs$runServer(long original)
 	{
-		if(TAMBSClientUtil.isMobBattleMode())
+		if(TAMBSClientUtil.isMobBattleMode() && !TAMBSClientData.isPaused())
 		{
-			long tickrate = (long) (Float.valueOf(TAMBSClientData.INSTANCE.play_speed) * 20L);
-			return 1000L / tickrate;
+			long tickrate = (long) (Float.valueOf(TAMBSClientData.SPEED) * 20L);
+			return Math.min(1000L / Math.max(tickrate, 0L), 1000L);
 		}
 		return original;
 	}

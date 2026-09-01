@@ -7,36 +7,40 @@ import com.min01.tambs.client.TAMBSReloadListener.Options;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class MobCell extends AbstractWidget
 {
-    private TextOnlyButton bookmarkButton;
-    private boolean isBookmark;
-    public final LivingEntity entity;
+	protected TextOnlyButton bookmarkButton;
+    protected boolean isBookmark;
+    public final Entity entity;
     public final CompoundTag tag;
     
-    //TODO delete button for PresetTab;
-    public MobCell(int pX, int pY, int pWidth, int pHeight, LivingEntity entity) 
+    public MobCell(int pX, int pY, int pWidth, int pHeight, ResourceLocation name) 
     {
-    	this(pX, pY, pWidth, pHeight, entity, null);
+    	this(pX, pY, pWidth, pHeight, name, null);
     }
     
-    public MobCell(int pX, int pY, int pWidth, int pHeight, LivingEntity entity, CompoundTag tag) 
+    public MobCell(int pX, int pY, int pWidth, int pHeight, ResourceLocation name, CompoundTag tag) 
     {
-        super(pX, pY, pWidth, pHeight, entity.getDisplayName());
-        this.tag = tag;
-        this.entity = entity;
+        super(pX, pY, pWidth, pHeight, Component.empty());
+        this.tag = tag == null ? new CompoundTag() : tag;
+        this.entity = ForgeRegistries.ENTITY_TYPES.getValue(name).create(Minecraft.getInstance().level);
+        this.entity.load(this.tag);
         this.bookmarkButton = new TextOnlyButton(Button.builder(Component.literal("☆"), pButton -> 
         {
         	if(pButton.isActive())
@@ -45,17 +49,14 @@ public class MobCell extends AbstractWidget
             	if(bookmark)
             	{
             		this.bookmarkButton.setMessage(Component.literal("☆"));
-        	        this.save(TAMBSClientData.INSTANCE, true);
             	}
             	else
             	{
             		this.bookmarkButton.setMessage(Component.literal("★").withStyle(ChatFormatting.GOLD));
-        	        this.save(TAMBSClientData.INSTANCE, false);
             	}
     			this.isBookmark = !bookmark;
         	}
         }).bounds(this.getX() + 1, this.getY() + 1, 13, 13));
-        this.load(TAMBSClientData.INSTANCE);
     }
 
     @Override
@@ -64,16 +65,19 @@ public class MobCell extends AbstractWidget
     	if(this.isActive())
     	{
             this.renderBorder(pGuiGraphics, this.getX(), this.getY(), this.getWidth(), this.getHeight());
+            this.bookmarkButton.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
             
             PoseStack stack = pGuiGraphics.pose();
             stack.pushPose();
             stack.translate(0.0F, 10.0F, 0.0F);
             pGuiGraphics.enableScissor(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height);
-            InventoryScreen.renderEntityInInventoryFollowsAngle(pGuiGraphics, this.getX() + (this.width / 2), this.getY() + this.height - 15, (int) (30 - this.entity.getBoundingBox().getSize()), 0, 0, this.entity);
+            if(this.entity instanceof LivingEntity living)
+            {
+            	InventoryScreen.renderEntityInInventoryFollowsAngle(pGuiGraphics, this.getX() + (this.width / 2), this.getY() + this.height - 15, (int) (30 - this.entity.getBoundingBox().getSize()), 0, 0, living);
+            }
             pGuiGraphics.disableScissor();
             stack.popPose();
             
-            this.bookmarkButton.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
             if(this.isHovered)
             {
                 pGuiGraphics.fill(this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, 0x44FFFFFF);
@@ -91,10 +95,20 @@ public class MobCell extends AbstractWidget
 		}
 	}
 	
-	public void save(Options options, boolean remove)
+	public void save(Options options)
 	{
-		ResourceLocation location = ForgeRegistries.ENTITY_TYPES.getKey(this.entity.getType());
-		options.bookmark(location, remove);
+		String location = ForgeRegistries.ENTITY_TYPES.getKey(this.entity.getType()).toString();
+	    if(this.isBookmark)
+	    {
+	        if(!options.bookmarks.contains(location)) 
+	        {
+	            options.bookmarks.add(location);
+	        }
+	    }
+	    else
+	    {
+	        options.bookmarks.remove(location);
+	    }
 	}
     
     @Override
@@ -116,8 +130,7 @@ public class MobCell extends AbstractWidget
     {
     	if(this.isActive())
     	{
-    		this.bookmarkButton.mouseClicked(pMouseX, pMouseY, pButton);
-     		if(!this.bookmarkButton.isMouseOver(pMouseX, pMouseY))
+     		if(!this.bookmarkButton.mouseClicked(pMouseX, pMouseY, pButton))
     		{
      	    	TAMBSClientData.selectCell(this);
     		}
@@ -151,6 +164,7 @@ public class MobCell extends AbstractWidget
     	ResourceLocation location = ForgeRegistries.ENTITY_TYPES.getKey(this.entity.getType());
     	String modId = location.getNamespace();
     	boolean isModId = query.startsWith("@") && StringUtils.containsIgnoreCase(modId, query.replace("@", ""));
-    	return StringUtils.containsIgnoreCase(this.getMessage().getString(), query) || isModId;
+    	boolean isTag = query.startsWith("#") && this.entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(query.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
+    	return StringUtils.containsIgnoreCase(location.getPath(), query) || isModId || isTag;
     }
 }

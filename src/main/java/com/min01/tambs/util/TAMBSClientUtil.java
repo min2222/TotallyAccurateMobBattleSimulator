@@ -2,7 +2,7 @@ package com.min01.tambs.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -51,10 +51,40 @@ public class TAMBSClientUtil
 		return minecraft.screen instanceof TAMBSScreen screen && screen.isCollapsed();
 	}
 	
-	public static boolean isCameraMoving()
+	public static boolean isHidden()
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		return GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), minecraft.options.keyPickItem.getKey().getValue()) == GLFW.GLFW_PRESS;
+		return minecraft.screen instanceof TAMBSScreen screen && screen.isHidden();
+	}
+	
+	public static String getTickrate()
+	{
+		Minecraft minecraft = Minecraft.getInstance();
+		if(isMouseDown(minecraft.options.keyAttack))
+		{
+			return TAMBSClientData.INSTANCE.slow_motion_speed;
+		}
+		else if(isMouseDown(minecraft.options.keyUse))
+		{
+			return TAMBSClientData.INSTANCE.fast_motion_speed;
+		}
+		return TAMBSClientData.INSTANCE.play_speed;
+	}
+	
+	public static boolean isCameraMoving()
+	{
+		if(!TAMBSClientData.isPaused())
+		{
+			return true;
+		}
+		Minecraft minecraft = Minecraft.getInstance();
+		return isMouseDown(minecraft.options.keyPickItem);
+	}
+	
+	public static boolean isMouseDown(KeyMapping key)
+	{
+		Minecraft minecraft = Minecraft.getInstance();
+		return GLFW.glfwGetMouseButton(minecraft.getWindow().getWindow(), key.getKey().getValue()) == GLFW.GLFW_PRESS;
 	}
 	
 	public static boolean isKeyDown(KeyMapping key)
@@ -64,24 +94,44 @@ public class TAMBSClientUtil
 		return InputConstants.isKeyDown(window.getWindow(), key.getKey().getValue());
 	}
 	
-	public static void setHovered()
+	public static void hover()
 	{
-        HitResult hitResult = TAMBSClientUtil.raycastFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
-        if(hitResult instanceof EntityHitResult entityHit && TAMBSClientData.isPaused())
+		if(!TAMBSClientData.isPaused())
+		{
+			return;
+		}
+        raycast(TAMBSClientData.LAST_HOVERED, t -> 
         {
-        	Entity entity =  entityHit.getEntity();
-        	if(entity instanceof LivingEntity living)
+        	if(t instanceof LivingEntity living)
         	{
-            	if(TAMBSClientData.LAST_HOVERED == null || !living.blockPosition().equals(TAMBSClientData.LAST_HOVERED))
-            	{
-        			TAMBSClientData.HOVERED_UUID = living.getUUID();
-	            	TAMBSClientData.LAST_HOVERED = living.blockPosition();
-            	}
+    			TAMBSClientData.HOVERED_UUID = living.getUUID();
+            	TAMBSClientData.LAST_HOVERED = living.blockPosition();
         	}
-        }
-        else
+        }, t ->
         {
         	TAMBSClientData.HOVERED_UUID = null;
+        });
+	}
+	
+	public static void raycast(Consumer<Entity> entityConsumer, Consumer<BlockHitResult> blockConsumer)
+	{
+		raycast(TAMBSClientData.LAST_PLACED, entityConsumer, blockConsumer);
+	}
+	
+	public static void raycast(BlockPos last, Consumer<Entity> entityConsumer, Consumer<BlockHitResult> blockConsumer)
+	{
+        HitResult hitResult = TAMBSClientUtil.raycast(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
+        if(hitResult instanceof EntityHitResult entityHit)
+        {
+    		Entity entity = entityHit.getEntity();
+        	if(last == null || !entity.blockPosition().equals(last))
+        	{
+        		entityConsumer.accept(entity);
+        	}
+        }
+        else if(hitResult instanceof BlockHitResult blockHit)
+        {
+        	blockConsumer.accept(blockHit);
         }
 	}
 	
@@ -91,7 +141,7 @@ public class TAMBSClientUtil
 		{
 			return;
 		}
-        HitResult hitResult = raycastFromMouse(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
+        HitResult hitResult = raycast(Double.valueOf(TAMBSClientData.INSTANCE.mouse_distance), true);
     	if(button == 0)
     	{
             if(hitResult instanceof BlockHitResult blockHit)
@@ -178,79 +228,87 @@ public class TAMBSClientUtil
         consumer.vertex(matrix4f, (float) boundingBox.maxX, (float) boundingBox.minY, (float) boundingBox.minZ).color(color.x, color.y, color.z, color.w).uv(maxU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(0.0F, -1.0F, 0.0F).endVertex();
         consumer.vertex(matrix4f, (float) boundingBox.maxX, (float) boundingBox.minY, (float) boundingBox.maxZ).color(color.x, color.y, color.z, color.w).uv(minU, maxV).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light).normal(0.0F, -1.0F, 0.0F).endVertex();
     }
+
+    public static List<Entity> getEntities(double startX, double startY, double endX, double endY, double maxDistance)
+    {
+        Minecraft minecraft = Minecraft.getInstance();
+        if(minecraft.level == null || minecraft.player == null)
+        {
+        	return new ArrayList<>();
+        }
+        Camera camera = minecraft.gameRenderer.getMainCamera();
+        Vec3 cameraPos = camera.getPosition();
+        
+        double width = minecraft.getWindow().getGuiScaledWidth();
+        double height = minecraft.getWindow().getGuiScaledHeight();
+
+        AABB broadBox = new AABB(cameraPos, cameraPos).inflate(maxDistance);
+        List<Entity> potentialEntities = minecraft.level.getEntities(minecraft.player, broadBox, Entity::isAlive);
+
+        float fov = minecraft.options.fov().get().floatValue();
+        Matrix4f projectionMatrix = minecraft.gameRenderer.getProjectionMatrix(fov);
+        
+        Matrix4f viewMatrix = new Matrix4f().rotateX(camera.getXRot() * ((float) Math.PI / 180.0F)).rotateY((camera.getYRot() + 180.0F) * ((float) Math.PI / 180.0F));
+        Matrix4f viewProj = new Matrix4f(projectionMatrix).mul(viewMatrix);
+
+        double minX = Math.min(startX, endX);
+        double maxX = Math.max(startX, endX);
+        double minY = Math.min(startY, endY);
+        double maxY = Math.max(startY, endY);
+
+        List<Entity> selected = new ArrayList<>();
+        for(Entity entity : potentialEntities) 
+        {
+            AABB bb = entity.getBoundingBox();
+            Vec3[] corners = new Vec3[] 
+            {
+                new Vec3(bb.minX, bb.minY, bb.minZ), new Vec3(bb.minX, bb.minY, bb.maxZ),
+                new Vec3(bb.minX, bb.maxY, bb.minZ), new Vec3(bb.minX, bb.maxY, bb.maxZ),
+                new Vec3(bb.maxX, bb.minY, bb.minZ), new Vec3(bb.maxX, bb.minY, bb.maxZ),
+                new Vec3(bb.maxX, bb.maxY, bb.minZ), new Vec3(bb.maxX, bb.maxY, bb.maxZ)
+            };
+
+            double entMinX = Double.MAX_VALUE;
+            double entMinY = Double.MAX_VALUE;
+            double entMaxX = -Double.MAX_VALUE;
+            double entMaxY = -Double.MAX_VALUE;
+            boolean inFront = false;
+
+            for(Vec3 corner : corners) 
+            {
+                Vector4f clipPos = new Vector4f((float) (corner.x - cameraPos.x), (float) (corner.y - cameraPos.y), (float) (corner.z - cameraPos.z), 1.0F);
+                viewProj.transform(clipPos);
+                if(clipPos.w() > 0.05F) 
+                {
+                    inFront = true; 
+                    float ndcX = clipPos.x() / clipPos.w();
+                    float ndcY = clipPos.y() / clipPos.w();
+                    
+                    double screenX = (ndcX + 1.0) / 2.0 * width;
+                    double screenY = (1.0 - ndcY) / 2.0 * height;
+                    entMinX = Math.min(entMinX, screenX);
+                    entMinY = Math.min(entMinY, screenY);
+                    entMaxX = Math.max(entMaxX, screenX);
+                    entMaxY = Math.max(entMaxY, screenY);
+                }
+            }
+            if(inFront)
+            {
+                if(entMinX <= maxX && entMaxX >= minX && entMinY <= maxY && entMaxY >= minY)
+                {
+                    selected.add(entity);
+                }
+            }
+        }
+        return selected;
+    }
     
-	public static HitResult raycastBlockFromMouse(double maxDistance)
+	public static HitResult raycastBlock(double maxDistance)
 	{
-		return raycastFromMouse(maxDistance, false);
-	}
-	
-	public static List<Entity> getEntities(double startX, double startY, double endX, double endY, double maxDistance)
-	{
-	    Minecraft minecraft = Minecraft.getInstance();
-	    if(minecraft.level == null || minecraft.player == null)
-	    {
-	    	return new ArrayList<>();
-	    }
-
-	    Camera camera = minecraft.gameRenderer.getMainCamera();
-	    Vec3 cameraPos = camera.getPosition();
-
-	    double width = minecraft.getWindow().getWidth();
-	    double height = minecraft.getWindow().getHeight();
-
-	    double minX = Math.min(startX, endX);
-	    double maxX = Math.max(startX, endX);
-	    double minY = Math.min(startY, endY);
-	    double maxY = Math.max(startY, endY);
-
-	    double ndcLeft = (2.0 * minX / width) - 1.0;
-	    double ndcRight = (2.0 * maxX / width) - 1.0;
-	    double ndcTop = 1.0 - (2.0 * minY / height);
-	    double ndcBottom = 1.0 - (2.0 * maxY / height);
-
-	    float partialTick = minecraft.getFrameTime();
-	    double fovY = Math.toRadians(minecraft.gameRenderer.getFov(camera, partialTick, true));
-	    double aspectRatio = width / height;
-
-	    double halfHeight = Math.tan(fovY / 2.0);
-	    double halfWidth = halfHeight * aspectRatio;
-
-	    Vector3f look = camera.getLookVector();
-	    Vector3f up = camera.getUpVector();
-	    Vector3f left = camera.getLeftVector();
-
-	    Vec3 lookVec = new Vec3(look.x(), look.y(), look.z());
-	    Vec3 upVec = new Vec3(up.x(), up.y(), up.z());
-	    Vec3 rightVec = new Vec3(-left.x(), -left.y(), -left.z());
-	    
-	    BiFunction<Double, Double, Vec3> getRay = (nx, ny) ->
-	    {
-	        return lookVec.add(rightVec.scale(nx * halfWidth)).add(upVec.scale(ny * halfHeight)).normalize();
-	    };
-
-	    Vec3 rayTL = getRay.apply(ndcLeft, ndcTop);
-	    Vec3 rayTR = getRay.apply(ndcRight, ndcTop);
-	    Vec3 rayBL = getRay.apply(ndcLeft, ndcBottom);
-	    Vec3 rayBR = getRay.apply(ndcRight, ndcBottom);
-
-	    Vec3 endTL = cameraPos.add(rayTL.scale(maxDistance));
-	    Vec3 endTR = cameraPos.add(rayTR.scale(maxDistance));
-	    Vec3 endBL = cameraPos.add(rayBL.scale(maxDistance));
-	    Vec3 endBR = cameraPos.add(rayBR.scale(maxDistance));
-
-	    double minW = Math.min(cameraPos.x, Math.min(endTL.x, Math.min(endTR.x, Math.min(endBL.x, endBR.x))));
-	    double minH = Math.min(cameraPos.y, Math.min(endTL.y, Math.min(endTR.y, Math.min(endBL.y, endBR.y))));
-	    double minD = Math.min(cameraPos.z, Math.min(endTL.z, Math.min(endTR.z, Math.min(endBL.z, endBR.z))));
-	    
-	    double maxW = Math.max(cameraPos.x, Math.max(endTL.x, Math.max(endTR.x, Math.max(endBL.x, endBR.x))));
-	    double maxH = Math.max(cameraPos.y, Math.max(endTL.y, Math.max(endTR.y, Math.max(endBL.y, endBR.y))));
-	    double maxD = Math.max(cameraPos.z, Math.max(endTL.z, Math.max(endTR.z, Math.max(endBL.z, endBR.z))));
-
-	    AABB searchBox = new AABB(minW, minH, minD, maxW, maxH, maxD);
-	    return minecraft.level.getEntities(minecraft.player, searchBox, t -> true);
+		return raycast(maxDistance, false);
 	}
 
-	public static HitResult raycastFromMouse(double maxDistance, boolean includeEntity)
+	public static HitResult raycast(double maxDistance, boolean includeEntity)
 	{
         Minecraft minecraft = Minecraft.getInstance();
 		MouseHandler mouse = minecraft.mouseHandler;
@@ -258,7 +316,6 @@ public class TAMBSClientUtil
         {
         	return null;
         }
-
         Camera camera = minecraft.gameRenderer.getMainCamera();
         Vec3 cameraPos = camera.getPosition();
 
@@ -287,7 +344,7 @@ public class TAMBSClientUtil
         Vec3 rayEnd = cameraPos.add(rayDir.scale(maxDistance));
 
         BlockHitResult blockHit = minecraft.level.clip(new ClipContext(cameraPos, rayEnd, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, minecraft.player));
-        EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(minecraft.level, minecraft.player, cameraPos, rayEnd, minecraft.player.getBoundingBox().expandTowards(rayDir.scale(maxDistance)), t -> true);
+        EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(minecraft.level, minecraft.player, cameraPos, rayEnd, minecraft.player.getBoundingBox().expandTowards(rayDir.scale(maxDistance)), Entity::isAlive);
         
         return entityHit != null && includeEntity ? entityHit : blockHit;
     }

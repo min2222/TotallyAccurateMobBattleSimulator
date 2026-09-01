@@ -11,6 +11,7 @@ import java.util.List;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -18,8 +19,8 @@ import net.minecraftforge.fml.loading.FMLPaths;
 
 public class TAMBSReloadListener implements ResourceManagerReloadListener
 {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    
+	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(CompoundTag.class, new CompoundTagSerializer()).create();
+	
 	@Override
 	public void onResourceManagerReload(ResourceManager pResourceManager) 
 	{
@@ -59,11 +60,15 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
 
     public static class Options
     {
-        public String mouse_distance = "200";
         public String play_speed = "1.0";
+        public String fast_motion_speed = "1.0";
+        public String slow_motion_speed = "1.0";
         public String fly_speed = "1.0";
+        public String mouse_distance = "200";
+        public boolean hideOnlyTambsUI = true;
+        public boolean clear_arrows = true;
         public List<String> bookmarks = new ArrayList<>();
-        public List<String> overlay = new ArrayList<>();
+        public List<Preset> presets = new ArrayList<>();
         public List<String> mob_griefing = new ArrayList<>();
         public List<String> mob_kill = new ArrayList<>();
         
@@ -71,17 +76,19 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
         {
         	return list.contains(name.toString());
         }
-        
-        public void bookmark(ResourceLocation name, boolean remove)
+    }
+    
+    public static class Preset
+    {
+        public String name = "";
+        public boolean bookmark = false;
+        public CompoundTag tag = new CompoundTag();
+
+        public Preset(String name, boolean bookmark, CompoundTag tag) 
         {
-        	if(remove)
-        	{
-            	this.bookmarks.remove(name.toString());
-        	}
-        	else
-        	{
-        		this.bookmarks.add(name.toString());
-        	}
+            this.name = name;
+            this.bookmark = bookmark;
+            this.tag = tag != null ? tag : new CompoundTag();
         }
     }
 }
