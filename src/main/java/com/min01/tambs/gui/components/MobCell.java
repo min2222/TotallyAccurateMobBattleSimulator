@@ -76,12 +76,6 @@ public class MobCell extends AbstractWidget
     }
     
     @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) 
-    {
-    	super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-    }
-    
-    @Override
     protected ClientTooltipPositioner createTooltipPositioner() 
     {
     	return new BelowOrAboveWidgetTooltipPositioner(this);
@@ -91,9 +85,7 @@ public class MobCell extends AbstractWidget
 	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick)
     {
     	if(this.error)
-    	{
     		return;
-    	}
     	try
     	{
         	if(this.isActive())
