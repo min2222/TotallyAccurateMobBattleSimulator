@@ -56,8 +56,6 @@ public class MobCell extends AbstractWidget
     	{
     		
     	}
-		this.setTooltip(Tooltip.create(this.entity.getDisplayName()));
-        this.setTooltipDelay(10);
         this.bookmarkButton = new TextOnlyButton(Button.builder(Component.literal("☆"), pButton -> 
         {
         	if(pButton.isActive())
@@ -74,6 +72,8 @@ public class MobCell extends AbstractWidget
     			this.isBookmark = !bookmark;
         	}
         }).bounds(this.getX() + 1, this.getY() + 1, 13, 13));
+		this.setTooltip(Tooltip.create(this.entity.getDisplayName()));
+        this.setTooltipDelay(10);
     }
     
     @Override

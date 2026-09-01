@@ -17,6 +17,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
@@ -66,7 +67,7 @@ public class MobSelectTab extends TAMBSTab
             	if(bookmark)
             	{
             		this.bookmarkButton.setMessage(Component.literal("☆"));
-            		this.updateCell(t -> true);
+            	    this.updateCell(t -> true);
             	}
             	else
             	{
@@ -154,14 +155,18 @@ public class MobSelectTab extends TAMBSTab
         }
     	pConsumer.accept(this.searchBox);
     	pConsumer.accept(this.bookmarkButton);
-    	if(this.isBookmark)
-    	{
-    	    this.updateCell(MobCell::isBookmark);
-    	}
-    	else
-    	{
-    	    this.updateCell(t -> true);
-    	}
+	    this.updateCell(t ->
+	    {
+	    	if(this.isBookmark && !t.isBookmark())
+	    	{
+	    		return false;
+	    	}
+	    	if(this.searchBox.getValue().isEmpty() || t.match(this.searchBox.getValue())) 
+            {
+            	return true;
+            }
+            return false;
+	    });
 		super.visitChildren(pConsumer);
 	}
 	
@@ -193,7 +198,18 @@ public class MobSelectTab extends TAMBSTab
     	if(!this.isBookmark && this.isActive())
     	{
     	    this.scrollAmount = Mth.clamp(this.scrollAmount - pDelta * 20.0D, 0.0D, Math.max(0, this.innerHeight));
-    	    this.updateCell(t -> true);
+    	    this.updateCell(t ->
+    	    {
+    	    	if(this.isBookmark && !t.isBookmark())
+    	    	{
+    	    		return false;
+    	    	}
+    	    	if(this.searchBox.getValue().isEmpty() || t.match(this.searchBox.getValue())) 
+                {
+                	return true;
+                }
+                return false;
+    	    });
     	}
 	    return super.mouseScrolled(pMouseX, pMouseY, pDelta);
     }
@@ -247,9 +263,11 @@ public class MobSelectTab extends TAMBSTab
         for(MobCell cell : this.all)
         {
         	cell.active = false;
+        	cell.setTooltip(null);
         	if(predicate.test(cell))
         	{
             	cell.active = true;
+            	cell.setTooltip(Tooltip.create(cell.entity.getDisplayName()));
         		this.recalculateCell(index, cell);
                 index++;
         	}
