@@ -210,10 +210,7 @@ public class TAMBSScreen extends Screen
 		{
 			if(renderable instanceof MobCell cell)
 			{
-		        if(cell.getY() > this.height || cell.getY() + cell.getHeight() < this.height - TAMBSScreen.TAB_HEIGHT)
-		        {
-		        	continue;
-		        }
+				cell.hidden = cell.getY() > this.height || cell.getY() + cell.getHeight() < this.height - TAMBSScreen.TAB_HEIGHT;
 	            pGuiGraphics.enableScissor(0, this.height - TAMBSScreen.TAB_HEIGHT, this.width, this.height);
 				cell.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 				pGuiGraphics.disableScissor();

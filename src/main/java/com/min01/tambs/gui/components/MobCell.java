@@ -33,6 +33,7 @@ public class MobCell extends AbstractWidget
     public final Entity entity;
     public final CompoundTag tag;
     public boolean error;
+    public boolean hidden;
     
     public MobCell(int pX, int pY, int pWidth, int pHeight, ResourceLocation name) 
     {
@@ -73,6 +74,14 @@ public class MobCell extends AbstractWidget
     			this.isBookmark = !bookmark;
         	}
         }).bounds(this.getX() + 1, this.getY() + 1, 13, 13));
+    }
+    
+    @Override
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) 
+    {
+        if(this.hidden)
+        	return;
+    	super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
     }
     
     @Override
