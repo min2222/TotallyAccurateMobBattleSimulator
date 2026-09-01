@@ -17,7 +17,7 @@ public class SuggestionEditBox extends EditBox
 {
 	protected final Font font;
     protected final int limit, lineHeight;
-    protected final Collection<SuggestionContent> allSuggestions;
+    protected Collection<SuggestionContent> allSuggestions;
     protected final boolean top;
 
     protected int offset;
@@ -59,6 +59,11 @@ public class SuggestionEditBox extends EditBox
                 return s;
             }
         }).toList();
+    }
+    
+    public void updateSuggestions(Collection<SuggestionContent> suggestions)
+    {
+    	this.allSuggestions = suggestions;
     }
 
     public SuggestionEditBox withPadding(int paddingX, int paddingY) 

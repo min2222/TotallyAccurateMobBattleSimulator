@@ -177,6 +177,7 @@ public class ToolTab extends TAMBSTab
 						else if(this.teamBox.selected())
 						{
 		    				TAMBSNetwork.sendToServer(new AddTeamPacket(living.getUUID(), this.teamName.getValue(), this.getColor(this.teamColor.getValue())));
+		    				this.teamName.updateSuggestions(SuggestionEditBox.ofString(Minecraft.getInstance().level.getScoreboard().getTeamNames()));
 			            	Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1.0F));
 			            	TAMBSClientData.LAST_PLACED = living.blockPosition();
 						}
@@ -239,6 +240,7 @@ public class ToolTab extends TAMBSTab
 					if(pButton == 0)
 					{
 						TAMBSNetwork.sendToServer(new AddTeamPacket(living.getUUID(), this.teamName.getValue(), this.getColor(this.teamColor.getValue())));
+	    				this.teamName.updateSuggestions(SuggestionEditBox.ofString(Minecraft.getInstance().level.getScoreboard().getTeamNames()));
 					}
 					else if(pButton == 1)
 					{
