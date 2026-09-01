@@ -65,6 +65,10 @@ public class ToolTab extends TAMBSTab
 				this.teamColor.setValue(team.getColor().getName());
 				this.dragBox.setColor(team.getColor().getColor());
 			}
+			else
+			{
+				this.dragBox.setColor(ChatFormatting.WHITE.getColor());
+			}
 		}
 		this.teamName.setResponder(t -> 
 		{
@@ -73,6 +77,10 @@ public class ToolTab extends TAMBSTab
 			{
 				this.teamColor.setValue(team.getColor().getName());
 				this.dragBox.setColor(team.getColor().getColor());
+			}
+			else
+			{
+				this.dragBox.setColor(ChatFormatting.WHITE.getColor());
 			}
 		});
 		this.teamColor.setResponder(t ->
