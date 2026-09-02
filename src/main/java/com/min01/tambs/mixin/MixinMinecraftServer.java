@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.injection.At;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.min01.tambs.client.TAMBSClientData;
-import com.min01.tambs.util.TAMBSClientUtil;
 
 import net.minecraft.server.MinecraftServer;
 
@@ -15,7 +14,7 @@ public class MixinMinecraftServer
 	@ModifyExpressionValue(method = "runServer", at = @At(value = "CONSTANT", args = "longValue=50"))
 	private long tambs$runServer(long original)
 	{
-		if(TAMBSClientUtil.isMobBattleMode() && !TAMBSClientData.isPaused())
+		if(TAMBSClientData.MOBBATTLE_MODE && !TAMBSClientData.isPaused())
 		{
 			long tickrate = (long) (Float.valueOf(TAMBSClientData.SPEED) * 20L);
 			return Math.min(1000L / Math.max(tickrate, 0L), 1000L);

@@ -9,7 +9,8 @@
 		"MixinAbilities",
 		"MixinMinecraftServer",
 		"MixinEntity",
-		"MixinLevel"
+		"MixinLevel",
+		"MixinServerLevel"
 	],
 	"client": [
 		"MixinKeyboardInput",
@@ -18,6 +19,7 @@
 		"MixinMinecraft",
 		"MixinTimer",
 		"MixinGui",
+		"MixinClientLevel",
 		"compat.geckolib.MixinAnimationProcessor"
 	],
 	"server": [

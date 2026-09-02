@@ -40,6 +40,7 @@ public class ToolTab extends TAMBSTab
 	private SuggestionEditBox teamColor;
 	private CheckEditBox mobGriefing;
 	private CheckEditBox mobKill;
+	private CheckEditBox mobEffect;
 	
 	private final DragBox dragBox = new DragBox();
 	private final TAMBSScreen screen;
@@ -56,6 +57,7 @@ public class ToolTab extends TAMBSTab
 		this.teamColor = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamName.getY() + 40, 100, 20, Component.translatable("tambs.button.color"), 5, false, SuggestionEditBox.ofString(colors));
 		this.mobGriefing = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_griefing"), 5, false, CheckEditBox.blocks());
 		this.mobKill = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.mobGriefing.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_kill"), 5, false, CheckEditBox.entities());
+		this.mobEffect = new CheckEditBox(Minecraft.getInstance().font, this.mobGriefing.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_effect"), 5, false, CheckEditBox.mobEffects());
 		if(this.teamName.getValue().isEmpty())
 		{
 			this.teamName.setValue("Mob1");
@@ -110,6 +112,7 @@ public class ToolTab extends TAMBSTab
     	pConsumer.accept(this.teamColor);
     	pConsumer.accept(this.mobGriefing);
     	pConsumer.accept(this.mobKill);
+    	pConsumer.accept(this.mobEffect);
 		super.visitChildren(pConsumer);
 	}
 	
@@ -132,6 +135,7 @@ public class ToolTab extends TAMBSTab
 	{
 		this.mobGriefing.checked.addAll(options.mob_griefing);
 		this.mobKill.checked.addAll(options.mob_kill);
+		this.mobEffect.checked.addAll(options.mob_effect);
 	}
 	
 	@Override
@@ -139,8 +143,10 @@ public class ToolTab extends TAMBSTab
 	{
 		options.mob_griefing.clear();
 		options.mob_kill.clear();
+		options.mob_effect.clear();
 		options.mob_griefing.addAll(this.mobGriefing.checked);
 		options.mob_kill.addAll(this.mobKill.checked);
+		options.mob_effect.addAll(this.mobEffect.checked);
 	}
 	
 	@Override
@@ -159,6 +165,7 @@ public class ToolTab extends TAMBSTab
 			pGuiGraphics.drawString(font, this.teamColor.getMessage(), this.teamColor.getX(), this.teamColor.getY() - 13, 0xFFFFFF);
 			pGuiGraphics.drawString(font, this.mobGriefing.getMessage(), this.mobGriefing.getX(), this.mobGriefing.getY() - 13, 0xFFFFFF);
 			pGuiGraphics.drawString(font, this.mobKill.getMessage(), this.mobKill.getX(), this.mobKill.getY() - 13, 0xFFFFFF);
+			pGuiGraphics.drawString(font, this.mobEffect.getMessage(), this.mobEffect.getX(), this.mobEffect.getY() - 13, 0xFFFFFF);
 		}
 	}
 	

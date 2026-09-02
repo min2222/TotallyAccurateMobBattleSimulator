@@ -22,6 +22,7 @@ public class OptionTab extends TAMBSTab
 	private EditBox fastMotionSpeed;
 	private EditBox flySpeedBox;
 	private EditBox distanceBox;
+	private EditBox timeBox;
 	private Checkbox hideOnlyTambsUI;
 	private Checkbox clearArrows;
 	
@@ -33,18 +34,21 @@ public class OptionTab extends TAMBSTab
 		this.fastMotionSpeed = new EditBox(Minecraft.getInstance().font, 5, screen.height - (TAMBSScreen.TAB_HEIGHT - 70), 100, 20, Component.translatable("tambs.option.fast_motion_speed"));
 		this.flySpeedBox = new EditBox(Minecraft.getInstance().font, this.playSpeedBox.getX() + 140, screen.height - (TAMBSScreen.TAB_HEIGHT + 10), 100, 20, Component.translatable("tambs.option.fly_speed"));
 		this.distanceBox = new EditBox(Minecraft.getInstance().font, this.playSpeedBox.getX() + 140, screen.height - (TAMBSScreen.TAB_HEIGHT - 30), 100, 20, Component.translatable("tambs.option.mouse_distance"));
+		this.timeBox = new EditBox(Minecraft.getInstance().font, this.playSpeedBox.getX() + 140, screen.height - (TAMBSScreen.TAB_HEIGHT - 70), 100, 20, Component.translatable("tambs.option.time"));
 
 		this.playSpeedBox.setResponder(t -> this.save(TAMBSClientData.INSTANCE));
 		this.slowMotionSpeed.setResponder(t -> this.save(TAMBSClientData.INSTANCE));
 		this.fastMotionSpeed.setResponder(t -> this.save(TAMBSClientData.INSTANCE));
 		this.flySpeedBox.setResponder(t -> this.save(TAMBSClientData.INSTANCE));
 		this.distanceBox.setResponder(t -> this.save(TAMBSClientData.INSTANCE));
+		this.timeBox.setResponder(t -> this.save(TAMBSClientData.INSTANCE));
 
 		this.playSpeedBox.setFilter(this::isNumber);
 		this.slowMotionSpeed.setFilter(this::isNumber);
 		this.fastMotionSpeed.setFilter(this::isNumber);
 		this.flySpeedBox.setFilter(this::isNumber);
 		this.distanceBox.setFilter(this::isNumber);
+		this.timeBox.setFilter(this::isNumber);
 		
 		this.hideOnlyTambsUI = new Checkbox(this.flySpeedBox.getX() + 140, screen.height - (TAMBSScreen.TAB_HEIGHT + 10), 20, 20, Component.translatable("tambs.option.hide_only_tambs_ui"), TAMBSClientData.INSTANCE.hideOnlyTambsUI);
 		this.clearArrows = new Checkbox(this.flySpeedBox.getX() + 140, this.hideOnlyTambsUI.getY() + 30, 20, 20, Component.translatable("tambs.option.clear_arrows"), TAMBSClientData.INSTANCE.clear_arrows);
@@ -76,6 +80,7 @@ public class OptionTab extends TAMBSTab
     	pConsumer.accept(this.fastMotionSpeed);
     	pConsumer.accept(this.flySpeedBox);
     	pConsumer.accept(this.distanceBox);
+    	pConsumer.accept(this.timeBox);
     	pConsumer.accept(this.hideOnlyTambsUI);
     	pConsumer.accept(this.clearArrows);
 		super.visitChildren(pConsumer);
@@ -91,6 +96,7 @@ public class OptionTab extends TAMBSTab
 		pGuiGraphics.drawString(font, this.fastMotionSpeed.getMessage(), this.fastMotionSpeed.getX(), this.fastMotionSpeed.getY() - 13, 0xFFFFFF);
 		pGuiGraphics.drawString(font, this.flySpeedBox.getMessage(), this.flySpeedBox.getX(), this.flySpeedBox.getY() - 13, 0xFFFFFF);
 		pGuiGraphics.drawString(font, this.distanceBox.getMessage(), this.distanceBox.getX(), this.distanceBox.getY() - 13, 0xFFFFFF);
+		pGuiGraphics.drawString(font, this.timeBox.getMessage(), this.timeBox.getX(), this.timeBox.getY() - 13, 0xFFFFFF);
 	}
 	
 	@Override
@@ -101,6 +107,7 @@ public class OptionTab extends TAMBSTab
 		this.fastMotionSpeed.setValue(options.fast_motion_speed);
 		this.flySpeedBox.setValue(options.fly_speed);
 		this.distanceBox.setValue(options.mouse_distance);
+		this.timeBox.setValue(options.time);
 	}
 	
 	@Override
@@ -125,6 +132,10 @@ public class OptionTab extends TAMBSTab
 		if(!this.distanceBox.getValue().isEmpty())
 		{
 			options.mouse_distance = this.distanceBox.getValue();
+		}
+		if(!this.timeBox.getValue().isEmpty())
+		{
+			options.time = this.timeBox.getValue();
 		}
 		options.hideOnlyTambsUI = this.hideOnlyTambsUI.selected();
 		options.clear_arrows = this.clearArrows.selected();

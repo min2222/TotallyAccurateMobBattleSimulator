@@ -27,6 +27,26 @@ public class CheckEditBox extends SuggestionEditBox
     {
 		super(font, x, y, width, height, message, maxLimit, top, suggestions);
 	}
+    
+	public static Collection<SuggestionContent> mobEffects() 
+    {
+        return ForgeRegistries.MOB_EFFECTS.getKeys().stream().<SuggestionContent>map(res -> new SuggestionContent() 
+        {
+            @Override
+            public boolean matches(String input)
+            {
+            	String modId = res.getNamespace();
+            	boolean isModId = input.startsWith("@") && StringUtils.containsIgnoreCase(modId, input.replace("@", ""));
+            	return StringUtils.containsIgnoreCase(res.getPath(), input) || isModId;
+            }
+
+            @Override
+            public String asString() 
+            {
+                return res.toString();
+            }
+        }).toList();
+    }
 
 	public static Collection<SuggestionContent> entities() 
     {

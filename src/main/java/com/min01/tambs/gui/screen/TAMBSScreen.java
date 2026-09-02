@@ -126,6 +126,7 @@ public class TAMBSScreen extends Screen
 	public void tick() 
 	{
 		super.tick();
+		this.minecraft.level.setDayTime(Long.valueOf(TAMBSClientData.INSTANCE.time));
 		if(this.isPauseScreen())
 		{
 			this.minecraft.level.guardEntityTick(t -> this.minecraft.level.tickNonPassenger(t), this.minecraft.player);
@@ -149,6 +150,7 @@ public class TAMBSScreen extends Screen
 	public void onClose() 
 	{
 		super.onClose();
+		TAMBSClientData.MOBBATTLE_MODE = false;
 		this.isHidden = false;
 		this.minecraft.options.hideGui = false;
 		this.tabNavigationBar.tabs.forEach(t -> 

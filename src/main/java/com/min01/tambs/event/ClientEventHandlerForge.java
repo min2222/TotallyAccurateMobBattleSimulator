@@ -61,13 +61,16 @@ public class ClientEventHandlerForge
 		{
 			minecraft.setScreen(new TAMBSScreen());
             minecraft.player.setDeltaMovement(Vec3.ZERO);
+			TAMBSClientData.pause(true);
+			TAMBSClientData.MOBBATTLE_MODE = true;
 		}
 	}
 	
     @SubscribeEvent
     public static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event)
     {
-    	TAMBSClientData.PAUSED = true;
+		TAMBSClientData.MOBBATTLE_MODE = false;
+		TAMBSClientData.pause(true);
     	TAMBSClientData.clear();
     	TAMBSReloadListener.save(FMLPaths.CONFIGDIR.get());
     }

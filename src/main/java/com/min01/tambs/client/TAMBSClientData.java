@@ -13,6 +13,7 @@ public class TAMBSClientData
 
 	public static String SPEED = "1.0";
 	public static boolean PAUSED = true;
+	public static boolean MOBBATTLE_MODE;
 
 	public static BlockPos LAST_PLACED;
 	public static BlockPos LAST_HOVERED;

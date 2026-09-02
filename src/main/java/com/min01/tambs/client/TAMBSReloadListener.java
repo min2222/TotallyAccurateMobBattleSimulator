@@ -65,12 +65,14 @@ public class TAMBSReloadListener implements ResourceManagerReloadListener
         public String slow_motion_speed = "1.0";
         public String fly_speed = "1.0";
         public String mouse_distance = "200";
+        public String time = "1000";
         public boolean hideOnlyTambsUI = true;
         public boolean clear_arrows = true;
         public List<String> bookmarks = new ArrayList<>();
         public List<Preset> presets = new ArrayList<>();
         public List<String> mob_griefing = new ArrayList<>();
         public List<String> mob_kill = new ArrayList<>();
+        public List<String> mob_effect = new ArrayList<>();
         
         public boolean contains(List<String> list, ResourceLocation name)
         {
