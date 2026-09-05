@@ -1,7 +1,5 @@
 package com.min01.tambs.gui.components;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.client.TAMBSReloadListener.Options;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -203,8 +201,8 @@ public class MobCell extends AbstractWidget
     {
     	ResourceLocation location = ForgeRegistries.ENTITY_TYPES.getKey(this.entity.getType());
     	String modId = location.getNamespace();
-    	boolean isModId = query.startsWith("@") && StringUtils.containsIgnoreCase(modId, query.replace("@", ""));
+    	boolean isModId = query.startsWith("@") && modId.startsWith(query.replace("@", ""));
     	boolean isTag = query.startsWith("#") && this.entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(query.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
-    	return StringUtils.containsIgnoreCase(location.getPath(), query) || isModId || isTag;
+    	return location.getPath().startsWith(query) || isModId || isTag;
     }
 }

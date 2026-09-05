@@ -263,11 +263,15 @@ public class TAMBSScreen extends Screen
 	@Override
 	public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) 
 	{
-		if(this.getCurrentTab() instanceof TAMBSTab tab && !this.collapseButton.isMouseOver(pMouseX, pMouseY))
+		boolean flag = super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+		if(!flag)
 		{
-			tab.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+			if(this.getCurrentTab() instanceof TAMBSTab tab && !this.collapseButton.isMouseOver(pMouseX, pMouseY))
+			{
+				tab.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+			}
 		}
-		return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+		return flag;
 	}
 	
 	@Override

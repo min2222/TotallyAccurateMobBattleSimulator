@@ -41,9 +41,13 @@ public class MixinLevel
     @WrapMethod(method = "setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;II)Z")
     private boolean tambs$setBlock(BlockPos pPos, BlockState pState, int pFlags, int pRecursionLeft, Operation<Boolean> original)
     {
-    	if(TAMBSClientUtil.isMobBattleMode() && TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.mob_griefing, ForgeRegistries.BLOCKS.getKey(pState.getBlock())))
+        BlockState old = ((Level) (Object) this).getBlockState(pPos);
+    	if(TAMBSClientUtil.isMobBattleMode())
     	{
-            return false;
+    		if(TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.mob_griefing, ForgeRegistries.BLOCKS.getKey(pState.getBlock())) || TAMBSClientData.INSTANCE.contains(TAMBSClientData.INSTANCE.mob_griefing, ForgeRegistries.BLOCKS.getKey(old.getBlock())))
+    		{
+                return false;
+    		}
     	}
         return original.call(pPos, pState, pFlags, pRecursionLeft);
     }

@@ -57,9 +57,9 @@ public class CheckEditBox extends SuggestionEditBox
             {
             	EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(res);
             	String modId = res.getNamespace();
-            	boolean isModId = input.startsWith("@") && StringUtils.containsIgnoreCase(modId, input.replace("@", ""));
+            	boolean isModId = input.startsWith("@") && modId.startsWith(input.replace("@", ""));
             	boolean isTag = input.startsWith("#") && type.is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(input.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
-            	return StringUtils.containsIgnoreCase(res.getPath(), input) || isModId || isTag;
+            	return res.getPath().startsWith(input) || isModId || isTag;
             }
 
             @Override
@@ -79,9 +79,9 @@ public class CheckEditBox extends SuggestionEditBox
             {
             	Block block = ForgeRegistries.BLOCKS.getValue(res);
             	String modId = res.getNamespace();
-            	boolean isModId = input.startsWith("@") && StringUtils.containsIgnoreCase(modId, input.replace("@", ""));
+            	boolean isModId = input.startsWith("@") && modId.startsWith(input.replace("@", ""));
             	boolean isTag = input.startsWith("#") && block.defaultBlockState().is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(input.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
-            	return StringUtils.containsIgnoreCase(res.getPath(), input) || isModId || isTag;
+            	return res.getPath().startsWith(input) || isModId || isTag;
             }
 
             @Override
