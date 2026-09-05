@@ -176,7 +176,7 @@ public class TAMBSScreen extends Screen
 			this.minecraft.options.hideGui = !this.minecraft.options.hideGui;
 			return false;
 		}
-		else if(this.minecraft.keyboardHandler.handleDebugKeys(pKeyCode))
+		else if(InputConstants.isKeyDown(this.minecraft.getWindow().getWindow(), 292) && this.minecraft.keyboardHandler.handleDebugKeys(pKeyCode))
 		{
 			return true;
 		}
