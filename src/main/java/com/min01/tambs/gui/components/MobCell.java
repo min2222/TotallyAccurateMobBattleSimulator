@@ -205,6 +205,6 @@ public class MobCell extends AbstractWidget
     	String modId = location.getNamespace();
     	boolean isModId = query.startsWith("@") && StringUtils.containsIgnoreCase(modId, query.replace("@", ""));
     	boolean isTag = query.startsWith("#") && this.entity.getType().is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(query.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
-    	return StringUtils.containsIgnoreCase(location.getPath(), query) || isModId || isTag;
+    	return StringUtils.containsIgnoreCase(this.entity.getDisplayName().getString(), query) || StringUtils.containsIgnoreCase(location.getPath(), query) || isModId || isTag;
     }
 }
