@@ -52,12 +52,11 @@ public class ToolTab extends TAMBSTab
 		this.teleportBox = new PairCheckbox(this.teamBox.getX() + 100, screen.height - (TAMBSScreen.TAB_HEIGHT + 15), 20, 20, Component.translatable("tambs.button.mob_teleport"), false);
 		this.teamBox.setOther(this.teleportBox);
 		this.teleportBox.setOther(this.teamBox);
-		this.teamName = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamBox.getY() + 40, 100, 20, Component.translatable("tambs.button.name"), 10, false, SuggestionEditBox.ofString(Minecraft.getInstance().level.getScoreboard().getTeamNames()));
-		List<String> colors = List.of(ChatFormatting.values()).stream().filter(t -> t.getColor() != null).map(t -> t.getName()).toList();
-		this.teamColor = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamName.getY() + 40, 100, 20, Component.translatable("tambs.button.color"), 5, false, SuggestionEditBox.ofString(colors));
-		this.mobGriefing = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_griefing"), 5, false, CheckEditBox.blocks());
-		this.mobKill = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.mobGriefing.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_kill"), 5, false, CheckEditBox.entities());
-		this.mobEffect = new CheckEditBox(Minecraft.getInstance().font, this.mobGriefing.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_effect"), 5, false, CheckEditBox.mobEffects());
+		this.teamName = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamBox.getY() + 40, 100, 20, Component.translatable("tambs.button.name"), 10, true, SuggestionEditBox.ofString(Minecraft.getInstance().level.getScoreboard().getTeamNames()));List<String> colors = List.of(ChatFormatting.values()).stream().filter(t -> t.getColor() != null).map(t -> t.getName()).toList();
+		this.teamColor = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamName.getY() + 40, 100, 20, Component.translatable("tambs.button.color"), 5, true, SuggestionEditBox.ofString(colors));
+		this.mobGriefing = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_griefing"), 5, true, CheckEditBox.blocks());
+		this.mobKill = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.mobGriefing.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_kill"), 5, true, CheckEditBox.entities());
+		this.mobEffect = new CheckEditBox(Minecraft.getInstance().font, this.mobGriefing.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_effect"), 5, true, CheckEditBox.mobEffects());
 		if(this.teamName.getValue().isEmpty())
 		{
 			this.teamName.setValue("Mob1");
@@ -121,12 +120,9 @@ public class ToolTab extends TAMBSTab
 	{
 		super.tick();
 		this.teamName.updateSuggestions(SuggestionEditBox.ofString(Minecraft.getInstance().level.getScoreboard().getTeamNames()));
-		if(!this.isActive())
+		if(this.teamBox.selected() || this.teleportBox.selected())
 		{
-			if(this.teamBox.selected() || this.teleportBox.selected())
-			{
-				TAMBSClientUtil.hover();
-			}
+			TAMBSClientUtil.hover();
 		}
 	}
 	
@@ -153,7 +149,7 @@ public class ToolTab extends TAMBSTab
 	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) 
 	{
 		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-		if(!this.isActive() && this.teamBox.selected() && TAMBSClientData.isPaused() && !TAMBSClientUtil.isCameraMoving())
+		if(this.teamBox.selected() && TAMBSClientData.isPaused() && !TAMBSClientUtil.isCameraMoving())
 		{
 			this.dragBox.render(pGuiGraphics, this.screen.width, this.screen.height);
 		}
@@ -172,7 +168,7 @@ public class ToolTab extends TAMBSTab
 	@Override
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) 
 	{
-		if(!this.isActive() && TAMBSClientData.isPaused())
+		if(TAMBSClientData.isPaused())
 		{
 			if(this.teleportBox.selected() && pButton == 1)
 			{
@@ -236,7 +232,7 @@ public class ToolTab extends TAMBSTab
 	@Override
 	public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY)
 	{
-		if(!this.isActive() && this.teamBox.selected() && TAMBSClientData.isPaused() && !TAMBSClientUtil.isCameraMoving())
+		if(this.teamBox.selected() && TAMBSClientData.isPaused() && !TAMBSClientUtil.isCameraMoving())
 		{
 			this.dragBox.enable(pMouseX, pMouseY);
 		}

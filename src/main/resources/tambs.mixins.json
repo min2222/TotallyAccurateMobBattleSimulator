@@ -18,7 +18,6 @@
 		"MixinCamera",
 		"MixinMinecraft",
 		"MixinTimer",
-		"MixinGui",
 		"MixinClientLevel",
 		"compat.geckolib.MixinAnimationProcessor"
 	],

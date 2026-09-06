@@ -62,19 +62,29 @@ public class MobSelectTab extends TAMBSTab
         {
         	if(this.isActive())
         	{
-                this.scrollAmount = 0;
             	boolean bookmark = this.isBookmark;
             	if(bookmark)
             	{
             		this.bookmarkButton.setMessage(Component.literal("☆"));
-            	    this.updateCell(t -> true);
             	}
             	else
             	{
             		this.bookmarkButton.setMessage(Component.literal("★").withStyle(ChatFormatting.GOLD));
-            	    this.updateCell(MobCell::isBookmark);
             	}
     			this.isBookmark = !bookmark;
+                this.scrollAmount = 0;
+    		    this.updateCell(t ->
+    		    {
+    		    	if(this.isBookmark && !t.isBookmark())
+    		    	{
+    		    		return false;
+    		    	}
+    		    	if(!this.searchBox.getValue().isBlank() && !t.match(this.searchBox.getValue())) 
+    	            {
+    	            	return false;
+    	            }
+    	            return true;
+    		    });
         	}
         }).bounds(this.getX() + 13, this.getY() + 16, 15, 15));
 	}
@@ -83,10 +93,7 @@ public class MobSelectTab extends TAMBSTab
 	public void tick()
 	{
 		super.tick();
-		if(!this.isActive())
-		{
-			TAMBSClientUtil.hover();
-		}
+		TAMBSClientUtil.hover();
 	}
 	
 	@Override
@@ -155,17 +162,18 @@ public class MobSelectTab extends TAMBSTab
         }
     	pConsumer.accept(this.searchBox);
     	pConsumer.accept(this.bookmarkButton);
+        this.scrollAmount = 0;
 	    this.updateCell(t ->
 	    {
 	    	if(this.isBookmark && !t.isBookmark())
 	    	{
 	    		return false;
 	    	}
-	    	if(this.searchBox.getValue().isEmpty() || t.match(this.searchBox.getValue())) 
+	    	if(!this.searchBox.getValue().isBlank() && !t.match(this.searchBox.getValue())) 
             {
-            	return true;
+            	return false;
             }
-            return false;
+            return true;
 	    });
 		super.visitChildren(pConsumer);
 	}
@@ -173,29 +181,21 @@ public class MobSelectTab extends TAMBSTab
 	@Override
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton)
 	{
-		if(!this.isActive())
-		{
-			TAMBSClientUtil.placeOrRemoveMob(pButton);
-			return false;
-		}
-		return super.mouseClicked(pMouseX, pMouseY, pButton);
+		TAMBSClientUtil.placeOrRemoveMob(pButton);
+		return false;
 	}
 	
 	@Override
 	public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) 
 	{
-		if(!this.isActive())
-		{
-			TAMBSClientUtil.placeOrRemoveMob(pButton);
-			return false;
-		}
-		return super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
+		TAMBSClientUtil.placeOrRemoveMob(pButton);
+		return false;
 	}
 
     @Override
     public boolean mouseScrolled(double pMouseX, double pMouseY, double pDelta)
     {
-    	if(!this.isBookmark && this.isActive())
+    	if(this.isActive())
     	{
     	    this.scrollAmount = Mth.clamp(this.scrollAmount - pDelta * 20.0D, 0.0D, Math.max(0, this.innerHeight));
     	    this.updateCell(t ->
@@ -204,11 +204,11 @@ public class MobSelectTab extends TAMBSTab
     	    	{
     	    		return false;
     	    	}
-    	    	if(this.searchBox.getValue().isEmpty() || t.match(this.searchBox.getValue())) 
+    	    	if(!this.searchBox.getValue().isBlank() && !t.match(this.searchBox.getValue())) 
                 {
-                	return true;
+                	return false;
                 }
-                return false;
+                return true;
     	    });
     	}
 	    return super.mouseScrolled(pMouseX, pMouseY, pDelta);
@@ -245,15 +245,15 @@ public class MobSelectTab extends TAMBSTab
         this.scrollAmount = 0;
 	    this.updateCell(t ->
 	    {
-	    	if(t.match(query)) 
+	    	if(this.isBookmark && !t.isBookmark())
+	    	{
+	    		return false;
+	    	}
+	    	if(!query.isBlank() && !t.match(query)) 
             {
-		    	if(this.isBookmark && !t.isBookmark())
-		    	{
-		    		return false;
-		    	}
-            	return true;
+            	return false;
             }
-            return false;
+            return true;
 	    });
     }
     
@@ -262,15 +262,16 @@ public class MobSelectTab extends TAMBSTab
         int index = 0;
         for(MobCell cell : this.all)
         {
-        	cell.active = false;
-        	cell.setTooltip(null);
-        	if(predicate.test(cell))
+        	if(!predicate.test(cell))
         	{
-            	cell.active = true;
-            	cell.setTooltip(Tooltip.create(cell.entity.getDisplayName()));
-        		this.recalculateCell(index, cell);
-                index++;
+            	cell.active = false;
+            	cell.setTooltip(null);
+        		continue;
         	}
+        	cell.active = true;
+        	cell.setTooltip(Tooltip.create(cell.entity.getDisplayName()));
+    		this.recalculateCell(index, cell);
+            index++;
         }
         this.updateInnerHeight(index);
     }
@@ -288,6 +289,7 @@ public class MobSelectTab extends TAMBSTab
     
     public void updateInnerHeight(int index)
     {
-        this.innerHeight = ((index / COLUMN_COUNT) * CELL_HEIGHT) - TAMBSScreen.TAB_HEIGHT;
+    	int rows = (index + COLUMN_COUNT - 1) / COLUMN_COUNT;
+        this.innerHeight = (rows * CELL_HEIGHT) - TAMBSScreen.TAB_HEIGHT;
     }
 }

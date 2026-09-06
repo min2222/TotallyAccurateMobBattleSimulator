@@ -9,7 +9,6 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 
-import com.min01.tambs.TAMBS;
 import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.gui.components.MobCell;
 import com.min01.tambs.gui.screen.TAMBSScreen;
@@ -28,7 +27,6 @@ import net.minecraft.client.MouseHandler;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -42,13 +40,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 public class TAMBSClientUtil 
 {
-	public static final ResourceLocation PAUSED_ICON = ResourceLocation.fromNamespaceAndPath(TAMBS.MODID, "textures/gui/paused.png");
-	public static final ResourceLocation PLAY_ICON = ResourceLocation.fromNamespaceAndPath(TAMBS.MODID, "textures/gui/play.png");
-	
 	public static boolean isMobBattleMode()
 	{
 		Minecraft minecraft = Minecraft.getInstance();
-		return minecraft.screen instanceof TAMBSScreen screen && screen.isCollapsed();
+		return minecraft.screen instanceof TAMBSScreen;
 	}
 	
 	public static boolean isHidden()

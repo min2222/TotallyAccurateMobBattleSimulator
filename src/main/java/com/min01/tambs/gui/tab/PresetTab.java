@@ -86,10 +86,7 @@ public class PresetTab extends MobSelectTab
 	public void tick()
 	{
 		super.tick();
-		if(!this.isActive())
-		{
-			TAMBSClientUtil.hover();
-		}
+		TAMBSClientUtil.hover();
  		if(TAMBSClientData.SELECTED_CELL instanceof PresetCell preset && preset.isDelete)
  		{
  			TAMBSClientData.selectCell(null);
@@ -99,7 +96,7 @@ public class PresetTab extends MobSelectTab
 	@Override
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton)
 	{
-		if(!this.isActive() && this.isAdd)
+		if(this.isAdd)
 		{
 			if(pButton == 0)
 			{
@@ -151,7 +148,7 @@ public class PresetTab extends MobSelectTab
 	@Override
 	public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY)
 	{
-		if(!this.isActive() && this.isAdd)
+		if(this.isAdd)
 		{
 			return false;
 		}

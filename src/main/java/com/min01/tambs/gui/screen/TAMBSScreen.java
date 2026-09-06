@@ -1,5 +1,6 @@
 package com.min01.tambs.gui.screen;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.min01.tambs.client.TAMBSClientData;
@@ -18,6 +19,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.components.tabs.Tab;
@@ -34,7 +36,7 @@ import net.minecraftforge.fml.loading.FMLPaths;
 
 public class TAMBSScreen extends Screen
 {
-	public static final int TAB_HEIGHT = 120;
+	public static final int TAB_HEIGHT = 100;
 	
 	private static final Component EXPAND = Component.translatable("tambs.button.expand");
 	private static final Component COLLAPSE = Component.translatable("tambs.button.collapse");
@@ -135,7 +137,7 @@ public class TAMBSScreen extends Screen
 		{
 			TAMBSClientData.clear();
 		}
-		if(this.isCollapsed && TAMBSClientUtil.isCameraMoving())
+		if(TAMBSClientUtil.isCameraMoving())
 		{
 			this.minecraft.mouseHandler.grabMouse();
 			this.minecraft.mouseHandler.turnPlayer();
@@ -180,20 +182,20 @@ public class TAMBSScreen extends Screen
 		{
 			return true;
 		}
-		if(this.isCollapsed)
+		if(this.isCollapsed && pKeyCode == TAMBSKeyMappings.PLAY.getKey().getValue())
 		{
-			if(pKeyCode == TAMBSKeyMappings.PLAY.getKey().getValue())
-			{
-				TAMBSClientData.pause(!TAMBSClientData.isPaused());
-            	this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-        		this.minecraft.mouseHandler.releaseMouse();
-				return false;
-			}
-			if(pKeyCode == 256 && this.shouldCloseOnEsc()) 
-			{
-				this.onClose();
-				return true;
-			}
+			TAMBSClientData.pause(!TAMBSClientData.isPaused());
+        	this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    		this.minecraft.mouseHandler.releaseMouse();
+			return false;
+		}
+		if(pKeyCode == 256 && this.shouldCloseOnEsc()) 
+		{
+			this.onClose();
+			return true;
+		}
+		if(!(this.getFocused() instanceof EditBox) && pKeyCode == InputConstants.KEY_SPACE)
+		{
 			return false;
 		}
 		return super.keyPressed(pKeyCode, pScanCode, pModifiers);
@@ -216,8 +218,8 @@ public class TAMBSScreen extends Screen
 		{
 			if(renderable instanceof MobCell cell)
 			{
-				cell.hidden = cell.getY() > this.height || cell.getY() + cell.getHeight() < this.height - TAMBSScreen.TAB_HEIGHT;
-	            pGuiGraphics.enableScissor(0, this.height - TAMBSScreen.TAB_HEIGHT, this.width, this.height);
+				cell.hidden = cell.getY() > this.height || cell.getY() + cell.getHeight() < this.height - TAB_HEIGHT;
+	            pGuiGraphics.enableScissor(0, this.height - TAB_HEIGHT, this.width, this.height);
 				cell.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 				pGuiGraphics.disableScissor();
 			}
@@ -237,13 +239,13 @@ public class TAMBSScreen extends Screen
 	@Override
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton)
 	{
-		if(this.getCurrentTab() instanceof TAMBSTab tab && !this.collapseButton.isMouseOver(pMouseX, pMouseY) && !this.isDragging())
+		for(GuiEventListener eventListener : new ArrayList<>(this.children())) 
 		{
-			tab.mouseClicked(pMouseX, pMouseY, pButton);
-		}
-		for(GuiEventListener eventListener : this.children()) 
-		{
-			if(eventListener instanceof MobCell && !this.isCollapsed && pMouseY <= this.height - TAMBSScreen.TAB_HEIGHT)
+			if(eventListener instanceof MobCell && pMouseY <= this.height - TAB_HEIGHT)
+			{
+				continue;
+			}
+			if(eventListener instanceof TAMBSTab && !this.canClick(pMouseY))
 			{
 				continue;
 			}
@@ -266,7 +268,7 @@ public class TAMBSScreen extends Screen
 		boolean flag = super.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
 		if(!flag)
 		{
-			if(this.getCurrentTab() instanceof TAMBSTab tab && !this.collapseButton.isMouseOver(pMouseX, pMouseY))
+			if(this.getCurrentTab() instanceof TAMBSTab tab && this.canClick(pMouseY) && !this.collapseButton.isMouseOver(pMouseX, pMouseY))
 			{
 				tab.mouseDragged(pMouseX, pMouseY, pButton, pDragX, pDragY);
 			}
@@ -298,6 +300,15 @@ public class TAMBSScreen extends Screen
 			tab.mouseReleased(pMouseX, pMouseY, pButton);
 		}
 		return super.mouseReleased(pMouseX, pMouseY, pButton);
+	}
+	
+	public boolean canClick(double pMouseY)
+	{
+		if(!this.isCollapsed)
+		{
+			return pMouseY <= this.height - (TAB_HEIGHT + 50);
+		}
+		return true;
 	}
 	
 	public Tab getCurrentTab()
