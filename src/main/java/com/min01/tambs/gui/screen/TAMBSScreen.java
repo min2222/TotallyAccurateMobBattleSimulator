@@ -6,6 +6,7 @@ import java.util.List;
 import com.min01.tambs.client.TAMBSClientData;
 import com.min01.tambs.client.TAMBSReloadListener;
 import com.min01.tambs.gui.components.MobCell;
+import com.min01.tambs.gui.components.SuggestionEditBox;
 import com.min01.tambs.gui.components.TextOnlyButton;
 import com.min01.tambs.gui.tab.MobSelectTab;
 import com.min01.tambs.gui.tab.OptionTab;
@@ -239,6 +240,14 @@ public class TAMBSScreen extends Screen
 	@Override
 	public boolean mouseClicked(double pMouseX, double pMouseY, int pButton)
 	{
+		for(GuiEventListener eventListener : new ArrayList<>(this.children()))
+		{
+			if(eventListener instanceof SuggestionEditBox editBox && editBox.mouseClickedSuggestions(pMouseX, pMouseY, pButton))
+			{
+				this.setFocused(editBox);
+				return true;
+			}
+		}
 		for(GuiEventListener eventListener : new ArrayList<>(this.children())) 
 		{
 			if(eventListener instanceof MobCell && pMouseY <= this.height - TAB_HEIGHT)

@@ -52,11 +52,12 @@ public class ToolTab extends TAMBSTab
 		this.teleportBox = new PairCheckbox(this.teamBox.getX() + 100, screen.height - (TAMBSScreen.TAB_HEIGHT + 15), 20, 20, Component.translatable("tambs.button.mob_teleport"), false);
 		this.teamBox.setOther(this.teleportBox);
 		this.teleportBox.setOther(this.teamBox);
-		this.teamName = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamBox.getY() + 40, 100, 20, Component.translatable("tambs.button.name"), 10, true, SuggestionEditBox.ofString(Minecraft.getInstance().level.getScoreboard().getTeamNames()));List<String> colors = List.of(ChatFormatting.values()).stream().filter(t -> t.getColor() != null).map(t -> t.getName()).toList();
-		this.teamColor = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamName.getY() + 40, 100, 20, Component.translatable("tambs.button.color"), 5, true, SuggestionEditBox.ofString(colors));
-		this.mobGriefing = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_griefing"), 5, true, CheckEditBox.blocks());
-		this.mobKill = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.mobGriefing.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_kill"), 5, true, CheckEditBox.entities());
-		this.mobEffect = new CheckEditBox(Minecraft.getInstance().font, this.mobGriefing.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_effect"), 5, true, CheckEditBox.mobEffects());
+		this.teamName = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamBox.getY() + 40, 100, 20, Component.translatable("tambs.button.name"), 10, SuggestionEditBox.of(Minecraft.getInstance().level.getScoreboard().getTeamNames()));
+		List<String> colors = List.of(ChatFormatting.values()).stream().filter(t -> t.getColor() != null).map(t -> t.getName()).toList();
+		this.teamColor = new SuggestionEditBox(Minecraft.getInstance().font, 5, this.teamName.getY() + 40, 100, 20, Component.translatable("tambs.button.color"), 5, SuggestionEditBox.of(colors));
+		this.mobGriefing = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_griefing"), 5, CheckEditBox.blocks());
+		this.mobKill = new CheckEditBox(Minecraft.getInstance().font, this.teamName.getX() + 120, this.mobGriefing.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_kill"), 5, CheckEditBox.entities());
+		this.mobEffect = new CheckEditBox(Minecraft.getInstance().font, this.mobGriefing.getX() + 120, this.teleportBox.getY() + 40, 100, 20, Component.translatable("tambs.button.mob_effect"), 5, CheckEditBox.mobEffects());
 		if(this.teamName.getValue().isEmpty())
 		{
 			this.teamName.setValue("Mob1");
@@ -119,7 +120,7 @@ public class ToolTab extends TAMBSTab
 	public void tick()
 	{
 		super.tick();
-		this.teamName.updateSuggestions(SuggestionEditBox.ofString(Minecraft.getInstance().level.getScoreboard().getTeamNames()));
+		this.teamName.updateSuggestions(SuggestionEditBox.of(Minecraft.getInstance().level.getScoreboard().getTeamNames()));
 		if(this.teamBox.selected() || this.teleportBox.selected())
 		{
 			TAMBSClientUtil.hover();

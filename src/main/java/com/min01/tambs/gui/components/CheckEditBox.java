@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,112 +23,106 @@ public class CheckEditBox extends SuggestionEditBox
 {
     public final List<String> checked = new ArrayList<>();
     
-    public CheckEditBox(Font font, int x, int y, int width, int height, Component message, int maxLimit, boolean top, Collection<SuggestionContent> suggestions)
+    public CheckEditBox(Font font, int x, int y, int width, int height, Component message, int maxLimit, Collection<SuggestionProvider> suggestions)
     {
-		super(font, x, y, width, height, message, maxLimit, top, suggestions);
+		super(font, x, y, width, height, message, maxLimit, suggestions);
 	}
     
-	public static Collection<SuggestionContent> mobEffects() 
+	public static Collection<SuggestionProvider> mobEffects() 
     {
-        return ForgeRegistries.MOB_EFFECTS.getKeys().stream().<SuggestionContent>map(res -> new SuggestionContent() 
+        return ForgeRegistries.MOB_EFFECTS.getKeys().stream().<SuggestionProvider>map(t -> new SuggestionProvider() 
         {
             @Override
-            public boolean matches(String input)
+            public boolean matches(String query)
             {
-            	String modId = res.getNamespace();
-            	boolean isModId = input.startsWith("@") && modId.startsWith(input.replace("@", ""));
-            	return res.getPath().startsWith(input) || isModId;
+            	String modId = t.getNamespace();
+            	boolean isModId = query.startsWith("@") && modId.startsWith(query.replace("@", ""));
+            	return t.getPath().startsWith(query) || isModId;
             }
-
+            
             @Override
-            public String asString() 
+            public String getString() 
             {
-                return res.toString();
+            	return t.toString();
             }
         }).toList();
     }
 
-	public static Collection<SuggestionContent> entities() 
+	public static Collection<SuggestionProvider> entities() 
     {
-        return ForgeRegistries.ENTITY_TYPES.getKeys().stream().filter(t -> ForgeRegistries.ENTITY_TYPES.getValue(t).canSummon()).<SuggestionContent>map(res -> new SuggestionContent() 
+        return ForgeRegistries.ENTITY_TYPES.getKeys().stream().filter(t -> ForgeRegistries.ENTITY_TYPES.getValue(t).canSummon()).<SuggestionProvider>map(t -> new SuggestionProvider() 
         {
             @Override
-            public boolean matches(String input)
+            public boolean matches(String query)
             {
-            	EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(res);
-            	String modId = res.getNamespace();
-            	boolean isModId = input.startsWith("@") && modId.startsWith(input.replace("@", ""));
-            	boolean isTag = input.startsWith("#") && type.is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(input.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
-            	return res.getPath().startsWith(input) || isModId || isTag;
+            	EntityType<?> type = ForgeRegistries.ENTITY_TYPES.getValue(t);
+            	String modId = t.getNamespace();
+            	boolean isModId = query.startsWith("@") && modId.startsWith(query.replace("@", ""));
+            	boolean isTag = query.startsWith("#") && type.is(TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(query.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
+            	return t.getPath().startsWith(query) || isModId || isTag;
             }
-
+            
             @Override
-            public String asString() 
+            public String getString() 
             {
-                return res.toString();
-            }
-        }).toList();
-    }
-	
-	public static Collection<SuggestionContent> blocks() 
-    {
-        return ForgeRegistries.BLOCKS.getKeys().stream().<SuggestionContent>map(res -> new SuggestionContent() 
-        {
-            @Override
-            public boolean matches(String input)
-            {
-            	Block block = ForgeRegistries.BLOCKS.getValue(res);
-            	String modId = res.getNamespace();
-            	boolean isModId = input.startsWith("@") && modId.startsWith(input.replace("@", ""));
-            	boolean isTag = input.startsWith("#") && block.defaultBlockState().is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(input.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
-            	return res.getPath().startsWith(input) || isModId || isTag;
-            }
-
-            @Override
-            public String asString() 
-            {
-                return res.toString();
+            	return t.toString();
             }
         }).toList();
     }
 	
+	public static Collection<SuggestionProvider> blocks() 
+    {
+        return ForgeRegistries.BLOCKS.getKeys().stream().<SuggestionProvider>map(t -> new SuggestionProvider() 
+        {
+            @Override
+            public boolean matches(String query)
+            {
+            	Block block = ForgeRegistries.BLOCKS.getValue(t);
+            	String modId = t.getNamespace();
+            	boolean isModId = query.startsWith("@") && modId.startsWith(query.replace("@", ""));
+            	boolean isTag = query.startsWith("#") && block.defaultBlockState().is(TagKey.create(Registries.BLOCK, ResourceLocation.parse(query.replaceAll("[^a-zA-Z0-9:]", "").toLowerCase())));
+            	return t.getPath().startsWith(query) || isModId || isTag;
+            }
+            
+            @Override
+            public String getString() 
+            {
+            	return t.toString();
+            }
+        }).toList();
+    }
+
 	@Override
-	public void renderSuggestion(GuiGraphics guiGraphics, int mouseX, int mouseY) 
+	public void renderSuggestions(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick)
 	{
-        if(this.suggestionsHidden() || this.suggestions.length == 0)
-            return;
-        if(this.suggestions.length == 1 && this.getValue().equals(this.suggestions[0]))
-            return;
-        int idx = this.indexFromMouse(mouseY);
-        if(idx >= 0 && idx < this.suggestions.length) 
+		if(!this.isFocused() || this.hidden)
+			return;
+        int size = Math.min(this.filtered.size(), this.limit);
+        PoseStack stack = pGuiGraphics.pose();
+        stack.pushPose();
+        stack.translate(0.0F, 0.0F, 50.0F);
+        for(int index = 0; index < size; ++index)
         {
-            this.select(idx);
+        	String suggestion = this.filtered.get(index + this.offset).getString();
+        	pGuiGraphics.fill(this.rect.getX(), this.rect.getY() + 12 * index, this.rect.getX() + this.rect.getWidth(), this.rect.getY() + 12 * index + 12, -805306368);
+        	if(pMouseX > this.rect.getX() && pMouseX < this.rect.getX() + this.rect.getWidth() && pMouseY > this.rect.getY() + 12 * index && pMouseY < this.rect.getY() + 12 * index + 12) 
+        	{
+    			this.select(index + this.offset);
+        	}
+        	pGuiGraphics.drawString(this.font, suggestion, this.rect.getX() + 11, this.rect.getY() + 2 + 12 * index, index + this.offset == this.current ? -256 : -5592406);
+        	if(this.checked.contains(suggestion))
+        	{
+            	pGuiGraphics.drawString(this.font, Component.literal("✓"), this.rect.getX() + 2, this.rect.getY() + 2 + 12 * index, index + this.offset == this.current ? -256 : -5592406);
+        	}
         }
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 50);
-        guiGraphics.fill(this.rect.getX(), this.rect.getY(), this.rect.getX() + this.rect.getWidth(), this.rect.getY() + this.rect.getHeight(), 0xe0101010);
-        int x = this.getX() + this.paddingX;
-        int y = this.rect.getY() + this.paddingY;
-        for(int i = 0; i < this.suggestions.length; i++) 
-        {
-            int idxx = (this.offset + i) % this.suggestions.length;
-            if(i >= 5 || idxx >= this.suggestions.length)
-                break;
-            String string = this.suggestions[idxx];
-            guiGraphics.drawString(this.font, string, x + 10, y + i * this.lineHeight, this.current == idxx ? 0xFFFF55 : 0xFFFFFF);
-            if(this.checked.contains(string))
-            {
-                guiGraphics.drawString(this.font, Component.literal("✓"), x, y + i * this.lineHeight, this.current == idxx ? 0xFFFF55 : 0xFFFFFF);
-            }
-        }
-        guiGraphics.pose().popPose();
+        pGuiGraphics.pose().popPose();
 	}
 	
 	@Override
 	public void useSuggestion() 
 	{
     	Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-        String suggestion = this.suggestions[this.current];
+		String suggestion = this.filtered.get(this.current).getString();
         if(this.checked.contains(suggestion))
         {
         	this.checked.remove(suggestion);
