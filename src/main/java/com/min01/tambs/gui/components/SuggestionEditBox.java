@@ -3,6 +3,7 @@ package com.min01.tambs.gui.components;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import org.apache.commons.lang3.StringUtils;
 import org.lwjgl.glfw.GLFW;
 
 import net.minecraft.client.gui.Font;
@@ -50,7 +51,7 @@ public class SuggestionEditBox extends EditBox
             @Override
             public boolean matches(String input)
             {
-                return s.startsWith(input);
+                return StringUtils.containsIgnoreCase(s, input);
             }
 
             @Override

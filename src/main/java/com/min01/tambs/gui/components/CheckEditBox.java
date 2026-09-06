@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,8 +34,8 @@ public class CheckEditBox extends SuggestionEditBox
             public boolean matches(String input)
             {
             	String modId = res.getNamespace();
-            	boolean isModId = input.startsWith("@") && StringUtils.containsIgnoreCase(modId, input.replace("@", ""));
-            	return StringUtils.containsIgnoreCase(res.getPath(), input) || isModId;
+            	boolean isModId = input.startsWith("@") && modId.startsWith(input.replace("@", ""));
+            	return res.getPath().startsWith(input) || isModId;
             }
 
             @Override
